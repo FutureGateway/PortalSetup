@@ -67,10 +67,8 @@ preinstall_occi() {
     echo "FATAL: Unable to locate FutureGateway' setenv.sh environment file; please refer to the setup_FGPortal.sh script"
     return 1
   fi
-    # Check if executing as root; in that case load environment
-  if [ $(whoami) = "root" ]; then
-    source $FGENV
-  fi
+  # sudo/root users do not have the FutureGateway environment
+  source $FGENV
   # RUNDIR
   if [ "${RUNDIR}" = "" ]; then
     echo "FATAL: \$RUNDIR environment variable must be set; please refer to the setup_FGPortal.sh script"
@@ -115,14 +113,14 @@ preinstall_occi() {
   fi 
   SYSTEM=$(uname -s)
   if [ $SYSTEM = "Darwin" ]; then
-    BREW=$(which brew)
+    BREW=$(which brew >/dev/null 2>/dev/null)
     if [ "${BREW}" = "" ]; then
       echo "FATAL: brew is not present in your system; unable install"
       return 1
     fi
   elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get)
-    YUM=$(which yum)
+    APTGET=$(which apt-get >/dev/null 2>/dev/null)
+    YUM=$(which yum >/dev/null 2>/dev/null)
     if [ "${APTGET}" = "" -a "${YUM}" = "" ]; then
       echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
       return 1
@@ -158,7 +156,29 @@ install_occi() {
     return 0
   fi
   echo "Installing OCCI"
-  curl -L http://go.egi.eu/fedcloud.ui | /bin/bash -
+  # installation foresees a different process for each supported architecture
+    if [ $SYSTEM = "Darwin" ]; then
+    # MacOS X
+    $BREW isntall ruby
+    gem install occi-cli
+  elif [ $SYSTEM="Linux" ]; then
+    if [ "${APTGET}" != "" ]; then
+       # Debian system
+       apt-get install ruby
+       gem install occi-cli
+    elif [ "${YUM}" != "" ]; then
+       # Enterprise Linux System
+       get_file http://repository.egi.eu/community/software/rocci.cli/4.2.x/releases/repofiles/sl-6-x86_64.repo /etc/yum.repos.d rocci-cli.repo
+       yum install -y occi-cli
+       ln -s /opt/occi-cli/bin/occi /usr/bin/occi
+    else
+      echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
+      return 1
+    fi
+  fi
+  # report to .fgSetup to track success    
+  get_ts
+  echo "$TS  occi" >> $RUNDIR/.fgSetup
 }
 
 # post installation steps
