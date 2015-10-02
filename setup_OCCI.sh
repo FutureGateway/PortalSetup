@@ -95,7 +95,7 @@ preinstall_occi() {
       return 1
     fi  
   fi
-  RUNDIR=$(cd $RUNDIR)
+  CURRDIR=$PWD
   # From now on the each installation phase assumes that the 
   # current directory is $FGLOCATION; during the installation
   # the current directory could be changed but always included
@@ -184,8 +184,8 @@ install_occi() {
 
 # post installation steps
 postinstall_occi() {
-  # go back to the RUNDIR
-  cd $RUNDIR
+  # go back to the CURRDIR
+  cd $CURRDIR
   # Final message
   echo "Installation script accomplished"
   echo ""

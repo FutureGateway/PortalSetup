@@ -116,7 +116,7 @@ preinstall_js() {
       return 1
     fi  
   fi
-  RUNDIR=$(cd $RUNDIR)
+  CURRDIR=$PWD
   # From now on the each installation phase assumes that the 
   # current directory is $FGLOCATION; during the installation
   # the current directory could be changed but always included
@@ -265,8 +265,8 @@ EOF
 
 # post installation steps
 postinstall_js() {
-  # go back to the RUNDIR
-  cd $RUNDIR
+  # go back to the CURRDIR
+  cd $CURRDIR
   # Final message
   echo "Installation script accomplished"
   echo "WARNING: Please from now on use another terminal since new enviornment"
