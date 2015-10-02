@@ -159,13 +159,53 @@ install_occi() {
   # installation foresees a different process for each supported architecture
     if [ $SYSTEM = "Darwin" ]; then
     # MacOS X
-    $BREW isntall ruby
-    gem install occi-cli
+    RUBY=$(which ruby)
+    if [ "${RUBY}" = "" ]; then
+        $BREW isntall ruby
+        RES=$?
+        if [ $RES -ne 0 ]; then
+            echo "FATAL: Your OCCI-client could not be installed."
+            echo "       Please try to fix your ruby/gem environment first."
+            return 1
+        fi
+    fi
+    GEM=$(which gem)
+    fi [ "${GEM}" = "" ]; then
+        echo "FATAL: Unhespected ruby installation without gem"
+        echo "       Please try to fix your environment first."
+        return 1    
+    fi
+    $GEM install occi-cli
+    RES=$?
+    if [ $RES -ne 0 ]; then
+        echo "FATAL: Your OCCI-client could not be installed."
+        echo "       Please try to fix your ruby/gem environment first."
+    fi
   elif [ $SYSTEM="Linux" ]; then
     if [ "${APTGET}" != "" ]; then
        # Debian system
-       apt-get install ruby
-       gem install occi-cli
+       RUBY=$(which ruby)
+       if [ "${RUBY}" = "" ]; then
+           $APTGET isntall ruby
+           RES=$?
+           if [ $RES -ne 0 ]; then
+               echo "FATAL: Your OCCI-client could not be installed."
+               echo "       Please try to fix your ruby/gem environment first."
+               return 1
+           fi
+       fi
+       GEM=$(which gem)
+       fi [ "${GEM}" = "" ]; then
+           echo "FATAL: Unhespected ruby installation without gem"
+           echo "       Please try to fix your environment first."
+           return 1    
+       fi
+       $GEM install occi-cli
+       RES=$?
+       if [ $RES -ne 0 ]; then
+           echo "FATAL: Your OCCI-client could not be installed."
+           echo "       Please try to fix your ruby/gem environment first."
+       fi
     elif [ "${YUM}" != "" ]; then
        # Enterprise Linux System
        get_file http://repository.egi.eu/community/software/rocci.cli/4.2.x/releases/repofiles/sl-6-x86_64.repo /etc/yum.repos.d rocci-cli.repo
