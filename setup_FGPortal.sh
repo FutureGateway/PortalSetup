@@ -8,7 +8,6 @@
 #
 # Setup environment variables (default values)
 #
-. setup_config.sh                                   # Load setup configuration variables
 TOMCATUSR="tomcat"                                  # TOMCAT username
 TOMCATPAS="tomcat"                                  # TOMCAT password
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
@@ -25,6 +24,9 @@ MYSQL_PASS=lportal
 MYSQL_DBNM=lportal
 MYSQL_ROOT=root
 MYSQL_RPAS=
+
+# This file contains common variables for setup_* scripts it may be used to override above settings
+. setup_config.sh
 
 # Install preliminary FutureGateway stuff
 preinstall_fg() {

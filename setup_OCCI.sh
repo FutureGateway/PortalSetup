@@ -9,8 +9,10 @@
 #
 # Setup environment variables (default values)
 #
-. setup_config.sh                           # Load setup configuration variables
-JSAGA_LOCATION=$FGHOME/FutureGateway        # Liferay SDK will be placed here
+# No specific environment exists for this script
+
+# This file contains common variables for setup_* scripts it may be used to override above settings
+. setup_config.sh
 
 # pre installation steps
 preinstall_occi() {
