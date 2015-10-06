@@ -52,6 +52,14 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #
 # No specific environment exists for this script
 
+#
+# setup_GridEngine.sh
+#
+#GEDIR=$FGLOCATION/GridEngine
+#GELOG=$GEDIR/log
+#GELIB=$GEDIR/lib
+
+
 
 # Function that produces a timestamp
 get_ts() {

@@ -9,7 +9,7 @@
 #
 # Setup environment variables (default values)
 #
-JSAGA_LOCATION=$FGHOME/FutureGateway        # Liferay SDK will be placed here
+JSAGA_LOCATION=$FGLOCATION        # Liferay SDK will be placed here
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
 . setup_config.sh
@@ -71,7 +71,7 @@ preinstall_js() {
   fi
   # FGLOCATION
   if [ "${FGLOCATION}" = "" ]; then
-    echo "FATAL: \$FGSETUP environment variable must be set; please refer to the setup_FGPortal.sh script"
+    echo "FATAL: \$FGLOCATION environment variable must be set; please refer to the setup_FGPortal.sh script"
     return 1
   fi
   if [ ! -d $FGLOCATION ]; then
