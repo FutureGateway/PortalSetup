@@ -13,7 +13,8 @@ GEDIR=$FGLOCATION/GridEngine
 GELOG=$GEDIR/log
 GELIB=$GEDIR/lib
 
-SETUPDB=1                                           # 1 - Initialize UsersTracking DB
+SETUPUTDB=1                                         # 1 - Initialize UsersTracking DB
+SETUPGRIDENGINEDAEMON=1                             # 1 - Configures GRIDENGINE Daemon
 # Below MYSQL settings...                           # !!! WARNING enabling this flag
 MYSQL_HOST=localhost                                # any existing DB will be dropped
 MYSQL_PORT=3306
@@ -90,14 +91,14 @@ preinstall_ge() {
     return 1
   fi 
   # Database pre-requisites
-  if [ $SETUPDB -ne 0 ]; then
+  if [ $SETUPUTDB -ne 0 ]; then
     MYSQL=$(which mysql)
     if [ "${MYSQL}" = "" ]; then
-      echo "FATAL: Specifying SETUPDB option; the system must have mysql client"
+      echo "FATAL: Specifying SETUPUTDB option; the system must have mysql client"
       return 1
     fi
     if [ "${MYSQL_ROOT}" = "" ]; then
-      echo "FATAL: Specifying SETUPDB option; you must provide mysql ROOT user"
+      echo "FATAL: Specifying SETUPUTDB option; you must provide mysql ROOT user"
       return 1
     fi
     if [ "${MYSQL_RPAS}" != "" ]; then
@@ -211,14 +212,14 @@ install_utdb() {
   fi
   echo "Installing GridEngine' users tracking database"
   get_file https://raw.githubusercontent.com/csgf/grid-and-cloud-engine/master/UsersTrackingDB/UsersTrackingDB.sql
-  if [ $SETUPDB -ne 0 ]; then
+  if [ $SETUPUTDB -ne 0 ]; then
     MYSQL=$(which mysql)
     if [ "${MYSQL}" = "" ]; then
-      echo "FATAL: Specifying SETUPDB option; the system must have mysql client"
+      echo "FATAL: Specifying SETUPUTDB option; the system must have mysql client"
       return 1
     fi
     if [ "${MYSQL_ROOT}" = "" ]; then
-      echo "FATAL: Specifying SETUPDB option; you must provide mysql ROOT user"
+      echo "FATAL: Specifying SETUPUTDB option; you must provide mysql ROOT user"
       return 1
     fi
     if [ "${MYSQL_RPAS}" != "" ]; then
@@ -242,6 +243,14 @@ install_utdb() {
     return 1
   else
     echo "Successfully connected to GridEngine' users tracking database"
+    if [ $SETUPGRIDENGINEDAEMON -ne 0 ]; then
+      # Add GridEngineDaemon APIServer entry
+      $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} -s -N -e "insert into GridOperations (id,portal,description) values (10000,'geAPI Server','GridEngine API Server');"
+      RES=$?
+      if [ $RES -ne 0 ]; then
+        echo "WARNING: GridEngineDaemon API Server entry not successfully set, please verify GridOperations table"
+      fi
+    fi
   fi
   # report to .fgSetup to track success
   get_ts
@@ -282,11 +291,11 @@ ge_uninstall() {
   # Get rid of GridEngine' UsersTracking database
   MYSQL=$(which mysql)
   if [ "${MYSQL}" = "" ]; then
-    echo "FATAL: Specifying SETUPDB option; the system must have mysql client"
+    echo "FATAL: Specifying SETUPUTDB option; the system must have mysql client"
     return 1
   fi
   if [ "${MYSQL_ROOT}" = "" ]; then
-    echo "FATAL: Specifying SETUPDB option; you must provide mysql ROOT user"
+    echo "FATAL: Specifying SETUPUTDB option; you must provide mysql ROOT user"
     return 1
   fi
   if [ "${MYSQL_RPAS}" != "" ]; then

@@ -58,6 +58,8 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #GEDIR=$FGLOCATION/GridEngine
 #GELOG=$GEDIR/log
 #GELIB=$GEDIR/lib
+#SETUPUTDB=1                                         # 1 - Initialize UsersTracking DB
+#SETUPGRIDENGINEDAEMON=1                             # 1 - Configures GRIDENGINE Daemon
 
 
 

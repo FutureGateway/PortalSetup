@@ -524,10 +524,13 @@ postinstall_fg() {
   # process still persists even killing its process
   # the following function take care of this
   cat >> $FGENV <<EOF
-killjava() {    
+killjava() {
+    if [ "\${1}" = "-f" ]; then
+      KILLARG="-9"
+    fi
     PROC=\$(ps -ef | grep java | grep -v grep | awk '{ print \$2}') 
     while [ "\${PROC}" != "" ]; do  
-        kill \$PROC; 
+        kill \$KILLARG \$PROC; 
         PROC=\$(ps -ef | grep java | awk '{ print \$2}') 
     done
 }
