@@ -549,7 +549,7 @@ start_tomcat() {
 }
 stop_tomcat() {
     ARG=\$1
-    if [ $((1*1)) -ne 0 ]; then
+    if [ \$((1*1)) -ne 0 ]; then
         RESTOFCOMMANDARG=" && killjava()"
     else
         RESTOFCOMMANDARG=""

@@ -141,6 +141,7 @@ install_ge() {
   cd GridEngine
   get_file http://grid.ct.infn.it/csgf/binaries/GridEngine_v1.5.10.zip
   cat > ziplist <<EOF
+lib/log4j-1.2.16.jar\
 lib/antlr-2.7.6.jar \
 lib/commons-collections-3.1.jar \
 lib/commons-fileupload-1.2.2.jar \
@@ -158,6 +159,8 @@ EOF
   unzip -o GridEngine_v1.5.10.zip $(cat ziplist)
   rm -f ziplist
   rm -f GridEngine_v1.5.10.zip
+  # Get rid of javassist-3.12.0.GA.jar missing in GridEngine_v1.5.10.zip
+  get_file http://central.maven.org/maven2/javassist/javassist/3.12.0.GA/javassist-3.12.0.GA.jar lib/
   CLASSPATH=$CLASSPATH:$(find $GELIB -name '*.jar' | awk 'BEGIN{ i=0 }{ printf("%s%s",(i++)==0?"":":",$1); }')
   cat >>${FGENV} <<EOF
 # GridEngine configuration (!) do not remove or modify this and the following line                                # [GridEngine] 
