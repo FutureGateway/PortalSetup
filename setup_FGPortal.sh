@@ -115,8 +115,17 @@ EOF
     return 1
   fi
   if [ ! -d $FGREPO ]; then
-    echo "Not existing file repository; creating it at: $FGREPO"
-    mkdir -p $FGREPO
+    echo "Not existing file repository; creating it at: $FGREPO"    
+    # Encoded FGRepo
+    if [ -f FGRepo.tar.gz ]; then
+      echo "Found the repository archive package; installing it"
+      tar xvfz FGRepo.tar.gz
+      # Archive could be named differently by the user 
+      mv FGRepo $(dirname $FGREPO)/$(basename $FGREPO)
+    else
+      echo "Creating file repository directory at: $FGREPO"
+      mkdir -p $FGREPO
+    fi
   else
     NUMREPOFILES=$(ls -1 $FGREPO | wc -l)
     printf "File repository exists at: $FGREPO containing %3d files.\n" $NUMREPOFILES
