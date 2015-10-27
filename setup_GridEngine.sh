@@ -166,7 +166,7 @@ EOF
 # GridEngine configuration (!) do not remove or modify this and the following line                                # [GridEngine] 
 CLASSPATH=\$CLASSPATH:\$(find ${GELIB} -name '*.jar' | awk 'BEGIN{ i=0 }{ printf("%s%s",(i++)==0?"":":",\$1); }') # [GridEngine]
 EOF
-  cat > GridEngineLogConfig.xml <<EOF
+  cat > $FGLOCATION/GridEngineLogConfig.xml <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
