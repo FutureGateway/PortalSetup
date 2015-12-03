@@ -419,7 +419,7 @@ install_liferay_sdk_maven() {
     return 0
   fi
   get_file http://apache.panu.it/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
-  unzip $FGLOCATION/apache-maven-3.3.3-bin.zip
+  unzip apache-maven-3.3.3-bin.zip
   rm -f apache-maven-3.3.3-bin.zip
   echo "export PATH=\$PATH:$FGLOCATION/apache-maven-3.3.3/bin" >> $FGENV 
   export PATH=$PATH:$FGLOCATION/apache-maven-3.3.3
@@ -537,7 +537,7 @@ killjava() {
     if [ "\${1}" = "-f" ]; then
       KILLARG="-9"
     fi
-    PROC=\$(ps -ef | grep java | grep -v grep | awk '{ print \$2}') 
+    PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | awk '{ print \$2}') 
     while [ "\${PROC}" != "" ]; do  
         kill \$KILLARG \$PROC; 
         PROC=\$(ps -ef | grep java | awk '{ print \$2}') 
@@ -545,7 +545,7 @@ killjava() {
 }
 start_tomcat() {
     ARG=\$1
-    if [ $((1*1)) -ne 0 ]; then
+    if [ $((ARG*ARG)) -ne 0 ]; then
         RESTOFCOMMANDARG=" && tail -f \$CATALINA_HOME/logs/catalina.out"
     else
         RESTOFCOMMANDARG=""
@@ -558,7 +558,7 @@ start_tomcat() {
 }
 stop_tomcat() {
     ARG=\$1
-    if [ \$((1*1)) -ne 0 ]; then
+    if [ \$((ARG*ARG)) -ne 0 ]; then
         RESTOFCOMMANDARG=" && killjava()"
     else
         RESTOFCOMMANDARG=""

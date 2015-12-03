@@ -82,8 +82,8 @@ preinstall_occi() {
       return 1
     fi
   elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get >/dev/null 2>/dev/null)
-    YUM=$(which yum >/dev/null 2>/dev/null)
+    APTGET=$(which apt-get 2>/dev/null)
+    YUM=$(which yum 2>/dev/null)
     if [ "${APTGET}" = "" -a "${YUM}" = "" ]; then
       echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
       return 1
@@ -120,7 +120,7 @@ install_occi() {
   fi
   echo "Installing OCCI"
   # installation foresees a different process for each supported architecture
-    if [ $SYSTEM = "Darwin" ]; then
+  if [ $SYSTEM = "Darwin" ]; then
     # MacOS X
     RUBY=$(which ruby)
     if [ "${RUBY}" = "" ]; then
@@ -133,7 +133,7 @@ install_occi() {
         fi
     fi
     GEM=$(which gem)
-    fi [ "${GEM}" = "" ]; then
+    if [ "${GEM}" = "" ]; then
         echo "FATAL: Unhespected ruby installation without gem"
         echo "       Please try to fix your environment first."
         return 1    
@@ -145,6 +145,8 @@ install_occi() {
         echo "       Please try to fix your ruby/gem environment first."
     fi
   elif [ $SYSTEM="Linux" ]; then
+    APTGET=$(which apt-get 2>/dev/null)
+    YUM=$(which yum 2>/dev/null)
     if [ "${APTGET}" != "" ]; then
        # Debian system
        RUBY=$(which ruby)
@@ -158,7 +160,7 @@ install_occi() {
            fi
        fi
        GEM=$(which gem)
-       fi [ "${GEM}" = "" ]; then
+       if [ "${GEM}" = "" ]; then
            echo "FATAL: Unhespected ruby installation without gem"
            echo "       Please try to fix your environment first."
            return 1    
@@ -193,7 +195,7 @@ postinstall_occi() {
   echo ""
   # report to .fgSetup to track success  
   get_ts
-  echo "$TS   occiend" >> $RUNDIR/.fgSetup
+  echo "$TS  occiend" >> $RUNDIR/.fgSetup
   return 0
 }
 

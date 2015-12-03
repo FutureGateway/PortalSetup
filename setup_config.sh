@@ -28,7 +28,7 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #TOMCATUSR="tomcat"                                  # TOMCAT username
 #TOMCATPAS="tomcat"                                  # TOMCAT password
 #LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
-#LIFERAY_SDK_LOCATION=$HOME/Documents/FutureGateway  # Liferay SDK will be placed here
+#LIFERAY_SDK_LOCATION=$FGLOCATION                    # Liferay SDK will be placed here
 #MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 #STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 #TIMEZONE="GMT+1"                                    # Set portal timezone
@@ -46,6 +46,7 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 # setup_JSAGA.sh
 #
 #JSAGA_LOCATION=$FGHOME/FutureGateway        # Liferay SDK will be placed here
+#FGENV=$FGLOCATION/sentenv.sh
 
 #
 # setup_OCCI.sh
@@ -60,7 +61,12 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #GELIB=$GEDIR/lib
 #SETUPUTDB=1                                         # 1 - Initialize UsersTracking DB
 #SETUPGRIDENGINEDAEMON=1                             # 1 - Configures GRIDENGINE Daemon
-
+#RUNDIR=$FGHOME                                      # Normally placed at $FGHOME
+#GEMYSQL_HOST=localhost                              # Any existing DB will be dropped
+#GEMYSQL_PORT=3306
+#GEMYSQL_USER=tracking_user
+#GEMYSQL_PASS=usertracking
+#GEMYSQL_DBNM=userstracking
 
 
 # Function that produces a timestamp

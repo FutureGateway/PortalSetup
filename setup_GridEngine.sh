@@ -12,15 +12,17 @@
 GEDIR=$FGLOCATION/GridEngine
 GELOG=$GEDIR/log
 GELIB=$GEDIR/lib
-
+GEDIR=$FGLOCATION/GridEngine
+GELOG=$GEDIR/log
+GELIB=$GEDIR/lib
 SETUPUTDB=1                                         # 1 - Initialize UsersTracking DB
 SETUPGRIDENGINEDAEMON=1                             # 1 - Configures GRIDENGINE Daemon
-# Below MYSQL settings...                           # !!! WARNING enabling this flag
-MYSQL_HOST=localhost                                # any existing DB will be dropped
-MYSQL_PORT=3306
-MYSQL_USER=tracking_user
-MYSQL_PASS=usertracking
-MYSQL_DBNM=userstracking
+RUNDIR=$FGHOME                                      # Normally placed at $FGHOME
+GEMYSQL_HOST=localhost                              # Any existing DB will be dropped
+GEMYSQL_PORT=3306
+GEMYSQL_USER=tracking_user
+GEMYSQL_PASS=usertracking
+GEMYSQL_DBNM=userstracking
 MYSQL_ROOT=root
 MYSQL_RPAS=
 
@@ -55,15 +57,6 @@ preinstall_ge() {
   fi
   if [ ! -d $RUNDIR ]; then
     echo "FATAL: Unable to locate directory from where setup_FGPortal.sh script has been executed"
-    return 1
-  fi
-  # FGSETUP
-  if [ "${FGSETUP}" = "" ]; then
-    echo "FATAL: \$FGSETUP environment variable must be set; please refer to the setup_FGPortal.sh script"
-    return 1
-  fi
-  if [ ! -f $FGSETUP ]; then
-    echo "FATAL: Unable to locate setup tracking file for setup_FGPortal.sh script"
     return 1
   fi
   # FGLOCATION
@@ -248,7 +241,7 @@ install_utdb() {
     echo "Successfully connected to GridEngine' users tracking database"
     if [ $SETUPGRIDENGINEDAEMON -ne 0 ]; then
       # Add GridEngineDaemon APIServer entry
-      $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} -s -N -e "insert into GridOperations (id,portal,description) values (10000,'geAPI Server','GridEngine API Server');"
+      $MYSQL -u${GEMYSQL_USER} -p${GEMYSQL_PASS} ${GEMYSQL_DBNM} -s -N -e "insert into GridOperations (id,portal,description) values (10000,'geAPI Server','GridEngine API Server');"
       RES=$?
       if [ $RES -ne 0 ]; then
         echo "WARNING: GridEngineDaemon API Server entry not successfully set, please verify GridOperations table"
@@ -257,7 +250,7 @@ install_utdb() {
   fi
   # report to .fgSetup to track success
   get_ts
-  echo "$TS geutdb" >> $RUNDIR/.fgSetup
+  echo "$TS   geutdb" >> $RUNDIR/.fgSetup
   return 0  
 }
 

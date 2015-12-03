@@ -10,6 +10,7 @@
 # Setup environment variables (default values)
 #
 JSAGA_LOCATION=$FGLOCATION        # Liferay SDK will be placed here
+FGENV=$FGLOCATION/sentenv.sh
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
 . setup_config.sh
@@ -103,8 +104,8 @@ preinstall_js() {
     # dos2unix is mandatory
     su - $FGUSER -c "${BREW} install dos2unix"
   elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get >/dev/null 2>/dev/null)
-    YUM=$(which yum >/dev/null 2>/dev/null)
+    APTGET=$(which apt-get 2>/dev/null)
+    YUM=$(which yum 2>/dev/null)
     if [ "${APTGET}" = "" -a "${YUM}" = "" ]; then
       echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
       return 1
@@ -198,14 +199,20 @@ install_gsi() {
     su - $FGUSER -c "${BREW} install voms"
   elif [ "${APTGET}" != "" ]; then
     wget -q -O - https://dist.eugridpma.info/distribution/igtf/current/GPG-KEY-EUGridPMA-RPM-3 | apt-key add -
-    deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
+    cat >> /etc/apt/sources.list <<EOF
+# EGI Thrustanchors
+deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
+EOF
     $APTGET update
     $APTGET install -y ca-policy-egi-core
-    get_file wget https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
+    $APTGET install -y libwww-perl
+    get_file https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
     tar xvfz fetch-crl-3.0.16.tar.gz
     cd fetch-crl-3.0.16
     make install
     cd -
+    rm -rf fetch-crl-3.0.16
+    rm -f fetch-crl-3.0.16.tar.gz
     fetch-crl
     $APTGET install -y voms-clients
   elif [ "${YUM}" != "" ]; then
@@ -259,6 +266,7 @@ export PATH=\$PATH:${JSAGA_HOME}/examples
 export CLASSPATH=\$CLASSPATH:\$(find \$JSAGA_HOME/lib -name '*.jar' | awk 'BEGIN{ c="" }{ printf("%c%s",c,\$1); c=":" }')
 EOF
   cd -
+  chown -R $FGUSER:$FGUSER jsaga-1.1.2/
   # report to .fgSetup to track success
   get_ts
   echo "$TS   jsaga" >> $RUNDIR/.fgSetup
