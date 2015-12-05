@@ -262,6 +262,9 @@ install_utdb() {
 
 # post installation steps
 postinstall_ge() {
+  # setup the proper user to GridEngine directory and GridEngineLogConfig
+  chown -R $FGUSER:$FGUSER $GEDIR
+  chown $FGUSER:$FGUSER $FGLOCATION/GridEngineLogConfig.xml
   # go back to the CURRDIR
   cd $CURRDIR
   # Final message
