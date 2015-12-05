@@ -96,7 +96,6 @@ preinstall_js() {
   fi 
   SYSTEM=$(uname -s)
   if [ $SYSTEM = "Darwin" ]; then
-    BREW=$(which brew >/dev/null 2>/dev/null)
     if [ "${BREW}" = "" ]; then
       echo "FATAL: brew is not present in your system; unable install"
       return 1
@@ -104,8 +103,6 @@ preinstall_js() {
     # dos2unix is mandatory
     su - $FGUSER -c "${BREW} install dos2unix"
   elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get 2>/dev/null)
-    YUM=$(which yum 2>/dev/null)
     if [ "${APTGET}" = "" -a "${YUM}" = "" ]; then
       echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
       return 1

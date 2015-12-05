@@ -68,6 +68,13 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #GEMYSQL_PASS=usertracking
 #GEMYSQL_DBNM=userstracking
 
+#
+# Determine OS installer
+#
+BREW=$(which brew >/dev/null 2>/dev/null)
+APTGET=$(which apt-get 2>/dev/null)
+YUM=$(which yum 2>/dev/null)
+
 
 # Function that produces a timestamp
 get_ts() {

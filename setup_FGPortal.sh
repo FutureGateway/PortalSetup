@@ -578,6 +578,11 @@ EOF
 . ${FGENV}
 EOF
   fi
+  # DEB needs a further entry in profile since .bash_profile overrides .profile
+  if [ "${APTGET}" != "" ]; then
+    echo ". .profile" >> $HOME/.bash_profile
+  fi 
+  
   # Final message
   echo "Script installation accomplished"
   echo "You can start now tomcath with: \$CATALINA_HOME/bin/startup.sh"

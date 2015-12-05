@@ -76,14 +76,11 @@ preinstall_occi() {
   fi 
   SYSTEM=$(uname -s)
   if [ $SYSTEM = "Darwin" ]; then
-    BREW=$(which brew >/dev/null 2>/dev/null)
     if [ "${BREW}" = "" ]; then
       echo "FATAL: brew is not present in your system; unable install"
       return 1
     fi
-  elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get 2>/dev/null)
-    YUM=$(which yum 2>/dev/null)
+  elif [ $SYSTEM="Linux" ]; then    
     if [ "${APTGET}" = "" -a "${YUM}" = "" ]; then
       echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
       return 1
@@ -145,8 +142,6 @@ install_occi() {
         echo "       Please try to fix your ruby/gem environment first."
     fi
   elif [ $SYSTEM="Linux" ]; then
-    APTGET=$(which apt-get 2>/dev/null)
-    YUM=$(which yum 2>/dev/null)
     if [ "${APTGET}" != "" ]; then
        # Debian system
        RUBY=$(which ruby)
