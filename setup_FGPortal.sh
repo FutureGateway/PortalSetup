@@ -395,7 +395,7 @@ install_liferay_sdk_ant() {
   unzip apache-ant-1.9.6-bin.zip
   rm -f apache-ant-1.9.6-bin.zip
   echo "export ANT_HOME=${FGLOCATION}/apache-ant-1.9.6" >> $FGENV 
-  echo "export PATH=\$PATH:${ANT_HOME}/bin" >> $FGENV 
+  echo "export PATH=\$PATH:\${ANT_HOME}/bin" >> $FGENV 
   export ANT_HOME=${FGLOCATION}/apache-ant-1.9.6
   export PATH=$PATH:${ANT_HOME}/bin
   # report to .fgSetup to track success  
