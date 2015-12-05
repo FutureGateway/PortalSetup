@@ -9,7 +9,12 @@
 #
 # Setup environment variables (default values)
 #
-JSAGA_LOCATION=$FGLOCATION        # Liferay SDK will be placed here
+FGUSER=Macbook                              # User owning FutureGateway files
+FGHOME=$HOME/Documents                      # This script could be executed as root; specify FG home here
+FGREPO=$FGHOME/FGRepo                       # Files could be cached into this repo directory
+FGLOCATION=$FGHOME/FutureGateway            # Location of the FutureGateway installation
+FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variables
+JSAGA_LOCATION=$FGLOCATION                  # Liferay SDK will be placed here
 FGENV=$FGLOCATION/sentenv.sh
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
@@ -272,6 +277,8 @@ EOF
 
 # post installation steps
 postinstall_js() {
+  # JSAGA ant library conflicts with apache-ant installation of FGSetup
+  mv $FGLOCATION/jsaga-1.1.2/lib/ant-1.5.jar $FGLOCATION/jsaga-1.1.2/lib/ant-1.5.jar_disabled
   # go back to the CURRDIR
   cd $CURRDIR
   # Final message
