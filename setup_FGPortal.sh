@@ -120,8 +120,8 @@ EOF
     if [ -f FGRepo.tar.gz ]; then
       echo "Found the repository archive package; installing it"
       tar xvfz FGRepo.tar.gz
-      # Archive could be named differently by the user 
-      mv FGRepo $(dirname $FGREPO)/$(basename $FGREPO)
+      # Archive could be named differently by the user
+      [ "${FGREPO}" != "FGRepo" ] || mv FGRepo $(dirname $FGREPO)/$(basename $FGREPO)
     else
       echo "Creating file repository directory at: $FGREPO"
       mkdir -p $FGREPO
