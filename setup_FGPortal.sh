@@ -539,8 +539,9 @@ killjava() {
     fi
     PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | awk '{ print \$2}') 
     while [ "\${PROC}" != "" ]; do  
-        kill \$KILLARG \$PROC; 
-        PROC=\$(ps -ef | grep java | awk '{ print \$2}') 
+        kill \$KILLARG \$PROC;         
+        sleep 1
+        PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | awk '{ print \$2}')
     done
 }
 start_tomcat() {
