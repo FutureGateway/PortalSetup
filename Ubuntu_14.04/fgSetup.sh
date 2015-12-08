@@ -12,16 +12,17 @@
 #
 VMIP=90.147.74.77
 SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuojBgjK4VZZZm+hTm4sBC/9C5Xp+QeuIDKGUxn4wW2c62zPVWSmGGoy46VdrBqzIIKQ+dKSI8iFfM8iozcgNpg4ok0FOUe+MBC5cLk47AA00Wl5Je3WTi+9tdIMTReZU9xMTTAmRK0Dmy9zn0/XTdPsqHdOizyKAWHtz6pzZGtwAkeOhOCjFacuwlcNVXpOiRVoyTd05H1UdVqL9XkqNPHBUc0JvT5tAKzQuR/CxNzt4ng0L/8XnbhXRZXFyLQATbgKhH0MqtJmFiZyIFvCqrQHkl4Cv/p4tkXeKGhVpb3zicMAFxckEsu9t5 Macbook@RicMac.local"
+VMUSER=futuregateway
 
-# 1) Establish secure connection with the fg VM ssh-ing with: futuregateway@<iVMIP>
-ssh -t futuregateway@$VMIP "
+# 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
+ssh -t $VMUSER@$VMIP "
 SSHPUBKEY=\"$SSHPUBKEY\"
 mkdir -p .ssh
 echo \$SSHPUBKEY > .ssh/authorized_keys
 "
 
 # 2) Install mandatory packages
-ssh -t futuregateway@$VMIP "
+ssh -t $VMUSER@$VMIP "
 export DEBIAN_FRONTEND=noninteractive
 sudo apt-get -y update
 PKGS=\"mysql-server \
@@ -63,7 +64,7 @@ cat >setup_config.sh <<EOF
 #
 # Common values; FG user, FG user directory, FG file repo, FG home dir, FG environment
 #
-FGUSER=futuregateway                        # User owning FutureGateway files
+FGUSER=${VMUSER}                            # User owning FutureGateway files
 FGHOME=\$HOME                               # This script could be executed as root; specify FG home here
 FGREPO=\$FGHOME/FGRepo                      # Files could be cached into this repo directory
 FGLOCATION=\$FGHOME/FutureGateway           # Location of the FutureGateway installation
@@ -160,9 +161,9 @@ get_file() {
   fi
 }
 EOF
-scp setup_config.sh futuregateway@$VMIP:
+scp setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
-ssh -t futuregateway@$VMIP "
+ssh -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh
 chmod +x *.sh
@@ -170,7 +171,7 @@ chmod +x *.sh
 "
 
 #3 Install JSAGA,GridEngine,rOCCI
-ssh -t futuregateway@$VMIP "
+ssh -t $VMUSER@$VMIP "
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh
@@ -181,7 +182,7 @@ sudo ./setup_OCCI.sh # Script not really mature some tuning still necessary
 "
 
 #4 fgAPIServer
-ssh -t futuregateway@$VMIP "
+ssh -t $VMUSER@$VMIP "
 source ~/.bash_profile
 cd \$FGLOCATION
 git clone https://github.com/FutureGateway/fgAPIServer.git
@@ -205,12 +206,13 @@ ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
 EOF
-scp setup_APIServerDaemon.sh futuregateway@$VMIP:
+scp setup_APIServerDaemon.sh $VMUSER@$VMIP:
 rm -f setup_APIServerDaemon.sh
-ssh -t futuregateway@$VMIP "
+ssh -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x setup_APIServerDaemon.sh
 ./setup_APIServerDaemon.sh
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
+rm ./setup_APIServerDaemon.sh
 "
 
