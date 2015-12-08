@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Almost automatic FutureGateway setup script
+# Almost automatic FutureGateway setup script(*)
 # This script can be executed once destination VM has been started
 # Before execute the script, just provide the VM ip address (VMIP) and
 # the client machine' SSH public key (SSHPUBKEY).
@@ -10,16 +10,25 @@
 #
 # Author: Riccardo Bruno <riccardo.bruno@ct.infn.it>
 #
+# (*) Full automatic script can be obtained having a passwordless sudo user in 
+#     the destination system. And providing SSH key exchange with cloud facilities
+#     for instance with cloud-init
+#     <user>            ALL = (ALL) NOPASSWD: ALL
+#
 VMIP=90.147.74.77
 SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuojBgjK4VZZZm+hTm4sBC/9C5Xp+QeuIDKGUxn4wW2c62zPVWSmGGoy46VdrBqzIIKQ+dKSI8iFfM8iozcgNpg4ok0FOUe+MBC5cLk47AA00Wl5Je3WTi+9tdIMTReZU9xMTTAmRK0Dmy9zn0/XTdPsqHdOizyKAWHtz6pzZGtwAkeOhOCjFacuwlcNVXpOiRVoyTd05H1UdVqL9XkqNPHBUc0JvT5tAKzQuR/CxNzt4ng0L/8XnbhXRZXFyLQATbgKhH0MqtJmFiZyIFvCqrQHkl4Cv/p4tkXeKGhVpb3zicMAFxckEsu9t5 Macbook@RicMac.local"
 VMUSER=futuregateway
+TOMCATUSR="tomcat"
+TOMCATPAS="tomcat"
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
-ssh -t $VMUSER@$VMIP "
+if [ "${SSHPUBKEY}" != "" ]; then
+  ssh -t $VMUSER@$VMIP "
 SSHPUBKEY=\"$SSHPUBKEY\"
 mkdir -p .ssh
 echo \$SSHPUBKEY > .ssh/authorized_keys
 "
+fi
 
 # 2) Install mandatory packages
 ssh -t $VMUSER@$VMIP "
@@ -73,8 +82,8 @@ FGENV=\$FGLOCATION/setenv.sh                # FutureGateway environment variable
 #
 # setup_FGPortal.sh
 #
-TOMCATUSR="tomcat"                                  # TOMCAT username
-TOMCATPAS="tomcat"                                  # TOMCAT password
+TOMCATUSR=${TOMCATUSR}                              # TOMCAT username
+TOMCATPAS=${TOMCATPAS}                              # TOMCAT password
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
@@ -215,4 +224,3 @@ chmod +x setup_APIServerDaemon.sh
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 rm ./setup_APIServerDaemon.sh
 "
-
