@@ -246,7 +246,12 @@ chmod +x customize_DBApps.sh
 ./customize_DBApps.sh
 cat customize_DBApps.sh
 rm -f ./customize_DBApps.sh
+sudo cat >> /etc/ssh/sshd_config <<EOF
+#jobtest allow password auth.
+Match User jobtest
+    PasswordAuthentication yes
+EOF
+sudo service ssh restart
 "
 rm -f ./customize_DBApps.sh
-
 
