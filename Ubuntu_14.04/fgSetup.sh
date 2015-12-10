@@ -13,17 +13,26 @@
 # (*) Full automatic script can be obtained having a passwordless sudo user in 
 #     the destination system. And providing SSH key exchange with cloud facilities
 #     for instance with cloud-init
+#     /etc/sudoers
 #     <user>            ALL = (ALL) NOPASSWD: ALL
 #
-VMIP=90.147.74.77
+SCRIPTNAME=$(basename $0)
+if [ "${1}" != "" ]; then
+  VMIP=$1
+else
+  echo "Usage $SCRIPTNAME <vm host/ip address>"
+  exit 1
+fi
+SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuojBgjK4VZZZm+hTm4sBC/9C5Xp+QeuIDKGUxn4wW2c62zPVWSmGGoy46VdrBqzIIKQ+dKSI8iFfM8iozcgNpg4ok0FOUe+MBC5cLk47AA00Wl5Je3WTi+9tdIMTReZU9xMTTAmRK0Dmy9zn0/XTdPsqHdOizyKAWHtz6pzZGtwAkeOhOCjFacuwlcNVXpOiRVoyTd05H1UdVqL9XkqNPHBUc0JvT5tAKzQuR/CxNzt4ng0L/8XnbhXRZXFyLQATbgKhH0MqtJmFiZyIFvCqrQHkl4Cv/p4tkXeKGhVpb3zicMAFxckEsu9t5 Macbook@RicMac.local"
 VMUSER=futuregateway
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
+MYSQL_RPAS='fgdbpass'
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
 if [ "${SSHPUBKEY}" != "" ]; then
-  ssh -t $VMUSER@$VMIP "
+  ssh $SSHKOPTS -t $VMUSER@$VMIP "
 SSHPUBKEY=\"$SSHPUBKEY\"
 mkdir -p .ssh
 echo \$SSHPUBKEY > .ssh/authorized_keys
@@ -31,8 +40,10 @@ echo \$SSHPUBKEY > .ssh/authorized_keys
 fi
 
 # 2) Install mandatory packages
-ssh -t $VMUSER@$VMIP "
-export DEBIAN_FRONTEND=noninteractive
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
+export DEBIAN_FRONTEND=\"noninteractive\"
+sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password ${MYSQL_RPAS}\"
+sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password ${MYSQL_RPAS}\"
 sudo apt-get -y update
 PKGS=\"mysql-server \
 openjdk-7-jdk \
@@ -97,7 +108,7 @@ MYSQL_USER=lportal
 MYSQL_PASS=lportal
 MYSQL_DBNM=lportal
 MYSQL_ROOT=root
-MYSQL_RPAS=
+MYSQL_RPAS=${MYSQL_RPAS}
 
 #
 # setup_JSAGA.sh
@@ -170,9 +181,9 @@ get_file() {
   fi
 }
 EOF
-scp setup_config.sh $VMUSER@$VMIP:
+scp $SSHKOPTS setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
-ssh -t $VMUSER@$VMIP "
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh
 chmod +x *.sh
@@ -180,7 +191,7 @@ chmod +x *.sh
 "
 
 #3 Install JSAGA,GridEngine,rOCCI
-ssh -t $VMUSER@$VMIP "
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh
@@ -191,12 +202,17 @@ sudo ./setup_OCCI.sh # Script not really mature some tuning still necessary
 "
 
 #4 fgAPIServer
-ssh -t $VMUSER@$VMIP "
+if [ "${MYSQL_RPAS}" != "" ]; then
+  SETUPFGAPIERVER_DB="mysql -u root -p$MYSQL_RPAS"
+else
+  SETUPFGAPIERVER_DB="mysql -u root"
+fi
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 cd \$FGLOCATION
 git clone https://github.com/FutureGateway/fgAPIServer.git
 cd fgAPIServer
-mysql -u root < fgapiserver_db.sql
+$SETUPFGAPIERVER_DB < fgapiserver_db.sql
 "
 
 #5 APIServerDaemon
@@ -215,9 +231,9 @@ ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
 EOF
-scp setup_APIServerDaemon.sh $VMUSER@$VMIP:
+scp $SSHKOPTS setup_APIServerDaemon.sh $VMUSER@$VMIP:
 rm -f setup_APIServerDaemon.sh
-ssh -t $VMUSER@$VMIP "
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x setup_APIServerDaemon.sh
 ./setup_APIServerDaemon.sh
@@ -242,8 +258,8 @@ IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
-scp customize_DBApps.sh $VMUSER@$VMIP:
-ssh -t $VMUSER@$VMIP "
+scp $SSHKOPTS customize_DBApps.sh $VMUSER@$VMIP:
+ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x customize_DBApps.sh
 ./customize_DBApps.sh
