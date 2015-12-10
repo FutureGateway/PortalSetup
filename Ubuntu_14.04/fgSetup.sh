@@ -28,7 +28,7 @@ SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuo
 VMUSER=futuregateway
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
-MYSQL_RPAS='fgdbpass'
+MYSQL_RPAS=
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
 if [ "${SSHPUBKEY}" != "" ]; then
@@ -40,10 +40,15 @@ echo \$SSHPUBKEY > .ssh/authorized_keys
 fi
 
 # 2) Install mandatory packages
+if [ "${MYSQL_RPAS}" != "" ]; then
+  DBROOTPASS="$MYSQL_RPAS"
+else
+  DBROOTPASS="\\\"''\\\""
+fi
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 export DEBIAN_FRONTEND=\"noninteractive\"
-sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password ${MYSQL_RPAS}\"
-sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password ${MYSQL_RPAS}\"
+sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password $DBROOTPASS\"
+sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password $DBROOTPASS\"
 sudo apt-get -y update
 PKGS=\"mysql-server \
 openjdk-7-jdk \
