@@ -15,7 +15,7 @@
 #     for instance with cloud-init
 #     <user>            ALL = (ALL) NOPASSWD: ALL
 #
-VMIP=90.147.74.88
+VMIP=90.147.74.77
 SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuojBgjK4VZZZm+hTm4sBC/9C5Xp+QeuIDKGUxn4wW2c62zPVWSmGGoy46VdrBqzIIKQ+dKSI8iFfM8iozcgNpg4ok0FOUe+MBC5cLk47AA00Wl5Je3WTi+9tdIMTReZU9xMTTAmRK0Dmy9zn0/XTdPsqHdOizyKAWHtz6pzZGtwAkeOhOCjFacuwlcNVXpOiRVoyTd05H1UdVqL9XkqNPHBUc0JvT5tAKzQuR/CxNzt4ng0L/8XnbhXRZXFyLQATbgKhH0MqtJmFiZyIFvCqrQHkl4Cv/p4tkXeKGhVpb3zicMAFxckEsu9t5 Macbook@RicMac.local"
 VMUSER=futuregateway
 TOMCATUSR="tomcat"
@@ -227,35 +227,35 @@ rm -f ./setup_APIServerDaemon.sh
 
 #6 Customize DB and default app settings
 cat > customize_DBApps.sh <<EOF
+# Fix SSH connection issue on Ubuntu with JSAGA
+sudo mkdir /etc/ssh/ssh_host_disabed
+find  /etc/ssh/ -name 'ssh_host_*' | grep -v disabled | grep -v rsa | grep -v \_dsa | xargs -I{} sudo mv {} /etc/ssh/ssh_host_disabled/
 # Use the correct application path
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
-# On ubuntu machines the SSH adaptor with user/password does not work
-#sudo adduser --disabled-password --gecos "" jobtest
-#RANDPASS=\$(date +%s | md5sum | base64 | head -c 12 ; echo)
-#sudo usermod --password \$(echo "\$RANDPASS" | openssl passwd -1 -stdin) jobtest
-#SQLCMD="update infrastructure_parameter set pvalue='\$RANDPASS' where infra_id=1 and pname='password'";
-#mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
-#IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
-#SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
-#mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
+sudo adduser --disabled-password --gecos "" jobtest
+RANDPASS=\$(date +%s | md5sum | base64 | head -c 12 ; echo)
+sudo usermod --password \$(echo "\$RANDPASS" | openssl passwd -1 -stdin) jobtest
+SQLCMD="update infrastructure_parameter set pvalue='\$RANDPASS' where infra_id=1 and pname='password'";
+mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
+IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
+SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
+mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
-cat customize_DBApps.sh
 scp customize_DBApps.sh $VMUSER@$VMIP:
 ssh -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x customize_DBApps.sh
 ./customize_DBApps.sh
-cat customize_DBApps.sh
 rm -f ./customize_DBApps.sh
-#sudo su - -c 'sudo cat >> /etc/ssh/sshd_config <<EOF2
-#
-##jobtest allow password auth.
-#Match User jobtest
-#    PasswordAuthentication yes
-#EOF2
-#'
-#sudo service ssh restart
+sudo su - -c 'sudo cat >> /etc/ssh/sshd_config <<EOF2
+
+#jobtest allow password auth.
+Match User jobtest
+    PasswordAuthentication yes
+EOF2
+'
+sudo service ssh restart
 "
 rm -f ./customize_DBApps.sh
 
