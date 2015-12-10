@@ -227,6 +227,7 @@ rm -f ./setup_APIServerDaemon.sh
 
 #6 Customize DB and default app settings
 cat > customize_DBApps.sh <<EOF
+# Use the correct application path
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 # On ubuntu machines the SSH adaptor with user/password does not work
