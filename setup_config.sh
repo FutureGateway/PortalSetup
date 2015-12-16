@@ -51,7 +51,7 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #
 # setup_OCCI.sh
 #
-# No specific environment exists for this script
+#USEFEDCLOUD=Y
 
 #
 # setup_GridEngine.sh

@@ -118,12 +118,12 @@ MYSQL_RPAS=${MYSQL_RPAS}
 #
 # setup_JSAGA.sh
 #
-JSAGA_LOCATION=\$FGHOME/FutureGateway        # Liferay SDK will be placed here
+JSAGA_LOCATION=\$FGHOME/FutureGateway              # Liferay SDK will be placed here
 
 #
 # setup_OCCI.sh
 #
-# No specific environment exists for this script
+USEFEDCLOUD='Y'                                    # Set to Y for FedCloud setup script
 
 #
 # setup_GridEngine.sh

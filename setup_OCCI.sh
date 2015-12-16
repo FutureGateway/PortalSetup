@@ -9,7 +9,7 @@
 #
 # Setup environment variables (default values)
 #
-# No specific environment exists for this script
+USEFEDCLOUD='Y'                                    # Set to Y for FedCloud setup script
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
 . setup_config.sh
@@ -104,6 +104,74 @@ preinstall_occi() {
   cd $FGLOCATION
 }
 
+# installing GSI
+install_gsi() {
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "gsi")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "GSI seems already installed; skipping this phase"
+    return 0
+  fi  
+  if [ "${USEFEDCLOUD}" = "y" -o "${USEFEDCLOUD}" = "Y" ]; then
+    # No need to install now GSI it will be done by FedCloud script
+    echo "GSI support will be isntalled later with FedCloud setup"
+  else
+    # Install setup script GSI
+    echo "GSI support will be isntalled ..."
+    if [ "${BREW}" != "" ]; then
+      $FGREPO/lcg_CA.sh
+      get_file https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
+      tar xvfz fetch-crl-3.0.16.tar.gz
+      cd fetch-crl-3.0.16
+      make install
+      cd -
+      fetch-crl
+      su - $FGUSER -c "${BREW} install voms"
+    elif [ "${APTGET}" != "" ]; then
+      wget -q -O - https://dist.eugridpma.info/distribution/igtf/current/GPG-KEY-EUGridPMA-RPM-3 | apt-key add -
+      cat >> /etc/apt/sources.list <<EOF
+# EGI Thrustanchors
+deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
+EOF
+      $APTGET update
+      $APTGET install -y ca-policy-egi-core
+      $APTGET install -y libwww-perl
+      get_file https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
+      tar xvfz fetch-crl-3.0.16.tar.gz
+      cd fetch-crl-3.0.16
+      make install
+      cd -
+      rm -rf fetch-crl-3.0.16
+      rm -f fetch-crl-3.0.16.tar.gz
+      fetch-crl
+      $APTGET install -y voms-clients
+    elif [ "${YUM}" != "" ]; then
+      cat > /etc/yum.repos.d/EGI-trustanchors.repo <<EOF
+[EGI-trustanchors]
+name=EGI-trustanchors
+baseurl=http://repository.egi.eu/sw/production/cas/1/current/
+gpgkey=http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3
+gpgcheck=1
+enabled=1
+EOF
+      $YUM install -y ca-policy-egi-core
+      $YUM install -y fetch-crl
+      fetch-crl
+      $YUM install -y voms-clients
+    else
+      echo "FATAL: Unsupported system: $SYSTEM"
+      return 1
+    fi
+  fi
+  # report to .fgSetup to track success
+  get_ts
+  echo "$TS   gsi" >> $RUNDIR/.fgSetup
+  return 0
+}
+
 # install OCCI Client interface
 install_occi() {
   if [ -e $RUNDIR/.fgSetup ]; then
@@ -115,66 +183,89 @@ install_occi() {
     echo "OCCI seems already installed; skipping this phase"
     return 0
   fi
-  echo "Installing OCCI"
-  # installation foresees a different process for each supported architecture
-  if [ $SYSTEM = "Darwin" ]; then
-    # MacOS X
-    RUBY=$(which ruby)
-    if [ "${RUBY}" = "" ]; then
-        $BREW isntall ruby
-        RES=$?
-        if [ $RES -ne 0 ]; then
-            echo "FATAL: Your OCCI-client could not be installed."
-            echo "       Please try to fix your ruby/gem environment first."
-            return 1
-        fi
+  echo "Installing OCCI ..."
+  if [ "${USEFEDCLOUD}" = "y" -o "${USEFEDCLOUD}" = "Y" ]; then
+    echo "Using original FG setup"
+    # installation foresees a different process for each supported architecture
+    if [ $SYSTEM = "Darwin" ]; then
+      # MacOS X
+      RUBY=$(which ruby)
+      if [ "${RUBY}" = "" ]; then
+          $BREW isntall ruby
+          RES=$?
+          if [ $RES -ne 0 ]; then
+              echo "FATAL: Your OCCI-client could not be installed."
+              echo "       Please try to fix your ruby/gem environment first."
+              return 1
+          fi
+      fi
+      GEM=$(which gem)
+      if [ "${GEM}" = "" ]; then
+          echo "FATAL: Unhespected ruby installation without gem"
+          echo "       Please try to fix your environment first."
+          return 1    
+      fi
+      $GEM install occi-cli
+      RES=$?
+      if [ $RES -ne 0 ]; then
+          echo "FATAL: Your OCCI-client could not be installed."
+          echo "       Please try to fix your ruby/gem environment first."
+      fi
+    elif [ $SYSTEM="Linux" ]; then
+      if [ "${APTGET}" != "" ]; then
+         # Debian system
+         RUBY=$(which ruby)
+         if [ "${RUBY}" = "" ]; then
+             $APTGET isntall ruby
+             RES=$?
+             if [ $RES -ne 0 ]; then
+                 echo "FATAL: Your OCCI-client could not be installed."
+                 echo "       Please try to fix your ruby/gem environment first."
+                 return 1
+             fi
+         fi
+         GEM=$(which gem)
+         if [ "${GEM}" = "" ]; then
+             echo "FATAL: Unhespected ruby installation without gem"
+             echo "       Please try to fix your environment first."
+             return 1    
+         fi
+         $GEM install occi-cli
+         RES=$?
+         if [ $RES -ne 0 ]; then
+             echo "FATAL: Your OCCI-client could not be installed."
+             echo "       Please try to fix your ruby/gem environment first."
+         fi
+      elif [ "${YUM}" != "" ]; then
+         # Enterprise Linux System
+         get_file http://repository.egi.eu/community/software/rocci.cli/4.2.x/releases/repofiles/sl-6-x86_64.repo /etc/yum.repos.d rocci-cli.repo
+         yum install -y occi-cli
+         ln -s /opt/occi-cli/bin/occi /usr/bin/occi
+      else
+        echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
+        return 1
+      fi
     fi
-    GEM=$(which gem)
-    if [ "${GEM}" = "" ]; then
-        echo "FATAL: Unhespected ruby installation without gem"
-        echo "       Please try to fix your environment first."
-        return 1    
-    fi
-    $GEM install occi-cli
-    RES=$?
-    if [ $RES -ne 0 ]; then
-        echo "FATAL: Your OCCI-client could not be installed."
-        echo "       Please try to fix your ruby/gem environment first."
-    fi
-  elif [ $SYSTEM="Linux" ]; then
-    if [ "${APTGET}" != "" ]; then
-       # Debian system
-       RUBY=$(which ruby)
-       if [ "${RUBY}" = "" ]; then
-           $APTGET isntall ruby
-           RES=$?
-           if [ $RES -ne 0 ]; then
-               echo "FATAL: Your OCCI-client could not be installed."
-               echo "       Please try to fix your ruby/gem environment first."
-               return 1
-           fi
-       fi
-       GEM=$(which gem)
-       if [ "${GEM}" = "" ]; then
-           echo "FATAL: Unhespected ruby installation without gem"
-           echo "       Please try to fix your environment first."
-           return 1    
-       fi
-       $GEM install occi-cli
-       RES=$?
-       if [ $RES -ne 0 ]; then
-           echo "FATAL: Your OCCI-client could not be installed."
-           echo "       Please try to fix your ruby/gem environment first."
-       fi
-    elif [ "${YUM}" != "" ]; then
-       # Enterprise Linux System
-       get_file http://repository.egi.eu/community/software/rocci.cli/4.2.x/releases/repofiles/sl-6-x86_64.repo /etc/yum.repos.d rocci-cli.repo
-       yum install -y occi-cli
-       ln -s /opt/occi-cli/bin/occi /usr/bin/occi
-    else
-      echo "FATAL: No supported installation facility found in your system (apt-get|yum); unable install"
-      return 1
-    fi
+  else
+    # Using FedCloud installation (USEFEDCLOUD != 'y/Y')
+    echo "Using FedCloud setup"
+    # This installation supports MacOSX, Debian and ELx
+    curl -L http://go.egi.eu/fedcloud.ui | /bin/bash -
+    # Now configure VO fedcloud.egi.eu
+    mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu
+
+    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.egee.cesnet.cz.lsc << EOF 
+/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz
+/C=NL/O=TERENA/CN=TERENA eScience SSL CA
+EOF
+    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms2.grid.cesnet.cz << EOF 
+/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz
+/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3
+EOF
+    cat >> /etc/vomses/fedcloud.egi.eu << EOF 
+"fedcloud.egi.eu" "voms1.egee.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz" "fedcloud.egi.eu" "24"
+"fedcloud.egi.eu" "voms2.grid.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz" "fedcloud.egi.eu" "24"
+EOF
   fi
   # report to .fgSetup to track success    
   get_ts
@@ -220,6 +311,7 @@ if [ "${1}" != "" ]; then
   fi
 else
   preinstall_occi   && \
+  install_gsi       && \
   install_occi      && \
   postinstall_occi
 fi

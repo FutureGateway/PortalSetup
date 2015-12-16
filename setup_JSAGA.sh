@@ -177,69 +177,6 @@ install_ultdcepolicy() {
   return 0
 }
 
-# installing GSI
-install_gsi() {
-  if [ -e $RUNDIR/.fgSetup ]; then
-    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "gsi")
-  else
-    SETUPCHK=""
-  fi
-  if [ "${SETUPCHK}" != "" ]; then
-    echo "GSI seems already installed; skipping this phase"
-    export JSAGA_HOME=${JSAGA_LOCATION}/jsaga-1.1.2
-    export PATH=$PATH:$JSAGA_HOME/examples
-    return 0
-  fi
-  if [ "${BREW}" != "" ]; then
-    $FGREPO/lcg_CA.sh
-    get_file https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
-    tar xvfz fetch-crl-3.0.16.tar.gz
-    cd fetch-crl-3.0.16
-    make install
-    cd -
-    fetch-crl
-    su - $FGUSER -c "${BREW} install voms"
-  elif [ "${APTGET}" != "" ]; then
-    wget -q -O - https://dist.eugridpma.info/distribution/igtf/current/GPG-KEY-EUGridPMA-RPM-3 | apt-key add -
-    cat >> /etc/apt/sources.list <<EOF
-# EGI Thrustanchors
-deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core
-EOF
-    $APTGET update
-    $APTGET install -y ca-policy-egi-core
-    $APTGET install -y libwww-perl
-    get_file https://dist.eugridpma.info/distribution/util/fetch-crl/fetch-crl-3.0.16.tar.gz
-    tar xvfz fetch-crl-3.0.16.tar.gz
-    cd fetch-crl-3.0.16
-    make install
-    cd -
-    rm -rf fetch-crl-3.0.16
-    rm -f fetch-crl-3.0.16.tar.gz
-    fetch-crl
-    $APTGET install -y voms-clients
-  elif [ "${YUM}" != "" ]; then
-    cat > /etc/yum.repos.d/EGI-trustanchors.repo <<EOF
-[EGI-trustanchors]
-name=EGI-trustanchors
-baseurl=http://repository.egi.eu/sw/production/cas/1/current/
-gpgkey=http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3
-gpgcheck=1
-enabled=1
-EOF
-    $YUM install -y ca-policy-egi-core
-    $YUM install -y fetch-crl
-    fetch-crl
-    $YUM install -y voms-clients
-  else
-    echo "FATAL: Unsupported system: $SYSTEM"
-    return 1
-  fi
-  # report to .fgSetup to track success
-  get_ts
-  echo "$TS   gsi" >> $RUNDIR/.fgSetup
-  return 0
-}
-
 # installing JSAGA
 install_js() {
   if [ -e $RUNDIR/.fgSetup ]; then
@@ -330,8 +267,7 @@ if [ "${1}" != "" ]; then
   fi
 else
   preinstall_js        && \
-  install_ultdcepolicy && \
-  install_gsi          && \
+  install_ultdcepolicy && \  
   install_js           && \
   postinstall_js
 fi
