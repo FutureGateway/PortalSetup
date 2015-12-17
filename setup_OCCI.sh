@@ -9,7 +9,7 @@
 #
 # Setup environment variables (default values)
 #
-USEFEDCLOUD='Y'                                    # Set to Y for FedCloud setup script
+USEFEDCLOUD=1                                     # Set to 1 for FedCloud setup script
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
 . setup_config.sh
@@ -115,7 +115,7 @@ install_gsi() {
     echo "GSI seems already installed; skipping this phase"
     return 0
   fi  
-  if [ "${USEFEDCLOUD}" = "y" -o "${USEFEDCLOUD}" = "Y" ]; then
+  if [ $USEFEDCLOUD -ne 0 ]; then
     # No need to install now GSI it will be done by FedCloud script
     echo "GSI support will be isntalled later with FedCloud setup"
   else
@@ -184,7 +184,27 @@ install_occi() {
     return 0
   fi
   echo "Installing OCCI ..."
-  if [ "${USEFEDCLOUD}" = "y" -o "${USEFEDCLOUD}" = "Y" ]; then
+  if [ $USEFEDCLOUD -ne 0 ]; then
+    # Using FedCloud installation (USEFEDCLOUD != 0)
+    echo "Using FedCloud setup"
+    # This installation supports MacOSX, Debian and ELx
+    curl -L http://go.egi.eu/fedcloud.ui | /bin/bash -
+    # Now configure VO fedcloud.egi.eu
+    mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu
+
+    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.egee.cesnet.cz.lsc << EOF 
+/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz
+/C=NL/O=TERENA/CN=TERENA eScience SSL CA
+EOF
+    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms2.grid.cesnet.cz << EOF 
+/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz
+/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3
+EOF
+    cat >> /etc/vomses/fedcloud.egi.eu << EOF 
+"fedcloud.egi.eu" "voms1.egee.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz" "fedcloud.egi.eu" "24"
+"fedcloud.egi.eu" "voms2.grid.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz" "fedcloud.egi.eu" "24"
+EOF    
+  else
     echo "Using original FG setup"
     # installation foresees a different process for each supported architecture
     if [ $SYSTEM = "Darwin" ]; then
@@ -246,26 +266,6 @@ install_occi() {
         return 1
       fi
     fi
-  else
-    # Using FedCloud installation (USEFEDCLOUD != 'y/Y')
-    echo "Using FedCloud setup"
-    # This installation supports MacOSX, Debian and ELx
-    curl -L http://go.egi.eu/fedcloud.ui | /bin/bash -
-    # Now configure VO fedcloud.egi.eu
-    mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu
-
-    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.egee.cesnet.cz.lsc << EOF 
-/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz
-/C=NL/O=TERENA/CN=TERENA eScience SSL CA
-EOF
-    cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms2.grid.cesnet.cz << EOF 
-/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz
-/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3
-EOF
-    cat >> /etc/vomses/fedcloud.egi.eu << EOF 
-"fedcloud.egi.eu" "voms1.egee.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz" "fedcloud.egi.eu" "24"
-"fedcloud.egi.eu" "voms2.grid.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz" "fedcloud.egi.eu" "24"
-EOF
   fi
   # report to .fgSetup to track success    
   get_ts

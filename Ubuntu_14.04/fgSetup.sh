@@ -123,7 +123,7 @@ JSAGA_LOCATION=\$FGHOME/FutureGateway              # Liferay SDK will be placed 
 #
 # setup_OCCI.sh
 #
-USEFEDCLOUD='Y'                                    # Set to Y for FedCloud setup script
+USEFEDCLOUD=1                                      # Set to 1 for FedCloud setup script
 
 #
 # setup_GridEngine.sh
