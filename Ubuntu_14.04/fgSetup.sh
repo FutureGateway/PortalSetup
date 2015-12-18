@@ -18,18 +18,18 @@
 #
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
-if [ "${1}" != "" ]; then
-  VMUSER=$1
+if [ "${1}" = "" ]; then
   OPTPASS=0
 fi
+VMUSER=$1
 if [ "${2}" != "" ]; then
-  VMIP=$2
   OPTPASS=0
 fi
+VMIP=$2
 if [ "${3}" != "" ]; then
-  SSHPUBKEY="$3"
   OPTPASS=0
 fi
+SSHPUBKEY="$3"
 if [ $OPTPASS -eq 0 ]; then
   echo "Usage $SCRIPTNAME <fgusername> <vm host/ip address> <ssh_pubkey>"
   exit 1
@@ -45,7 +45,7 @@ if [ "${SSHPUBKEY}" != "" ]; then
   ssh $SSHKOPTS -t $VMUSER@$VMIP "
 SSHPUBKEY=\"$SSHPUBKEY\"
 mkdir -p .ssh
-echo \$SSHPUBKEY > .ssh/authorized_keys
+echo \"\$SSHPUBKEY\" >> .ssh/authorized_keys
 "
 fi
 
