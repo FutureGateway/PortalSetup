@@ -16,16 +16,26 @@
 #     /etc/sudoers
 #     <user>            ALL = (ALL) NOPASSWD: ALL
 #
+OPTPASS=1
 SCRIPTNAME=$(basename $0)
 if [ "${1}" != "" ]; then
-  VMIP=$1
-else
-  echo "Usage $SCRIPTNAME <vm host/ip address>"
+  VMUSER=$1
+  OPTPASS=0
+fi
+if [ "${2}" != "" ]; then
+  VMIP=$2
+  OPTPASS=0
+fi
+if [ "${3}" != "" ]; then
+  SSHPUBKEY="$3"
+  OPTPASS=0
+fi
+if [ $OPTPASS -eq 0 ]; then
+  echo "Usage $SCRIPTNAME <fgusername> <vm host/ip address> <ssh_pubkey>"
   exit 1
 fi
+
 SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCp8beECtEHU1Pkxjt8Kkj0OhbbIUOuojBgjK4VZZZm+hTm4sBC/9C5Xp+QeuIDKGUxn4wW2c62zPVWSmGGoy46VdrBqzIIKQ+dKSI8iFfM8iozcgNpg4ok0FOUe+MBC5cLk47AA00Wl5Je3WTi+9tdIMTReZU9xMTTAmRK0Dmy9zn0/XTdPsqHdOizyKAWHtz6pzZGtwAkeOhOCjFacuwlcNVXpOiRVoyTd05H1UdVqL9XkqNPHBUc0JvT5tAKzQuR/CxNzt4ng0L/8XnbhXRZXFyLQATbgKhH0MqtJmFiZyIFvCqrQHkl4Cv/p4tkXeKGhVpb3zicMAFxckEsu9t5 Macbook@RicMac.local"
-VMUSER=futuregateway
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
 MYSQL_RPAS=
