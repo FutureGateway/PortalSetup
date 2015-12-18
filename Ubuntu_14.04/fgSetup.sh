@@ -22,11 +22,11 @@ if [ "${1}" = "" ]; then
   OPTPASS=0
 fi
 VMUSER=$1
-if [ "${2}" != "" ]; then
+if [ "${2}" = "" ]; then
   OPTPASS=0
 fi
 VMIP=$2
-if [ "${3}" != "" ]; then
+if [ "${3}" = "" ]; then
   OPTPASS=0
 fi
 SSHPUBKEY="$3"
