@@ -46,16 +46,15 @@ echo "#"
 echo "VMUSER   : '"$VMUSER"'"
 echo "VMIP     : '"$VMIP"'"
 echo "SSHPORT  : '"$SSHPORT"'"
-echo "SSHPUBKEY: '"$SSHPUBKEY"'"
 
-SSHKOPTS="-p $SSHPORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
 MYSQL_RPAS=
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
 if [ "${SSHPUBKEY}" != "" ]; then
-  ssh $SSHKOPTS -t $VMUSER@$VMIP "
+  ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 SSHPUBKEY=\"$SSHPUBKEY\"
 mkdir -p .ssh
 echo \"\$SSHPUBKEY\" >> .ssh/authorized_keys
@@ -68,7 +67,7 @@ if [ "${MYSQL_RPAS}" != "" ]; then
 else
   DBROOTPASS="\\\"''\\\""
 fi
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 export DEBIAN_FRONTEND=\"noninteractive\"
 sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password $DBROOTPASS\"
 sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password $DBROOTPASS\"
@@ -209,9 +208,9 @@ get_file() {
   fi
 }
 EOF
-scp -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
+scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh
 chmod +x *.sh
@@ -219,7 +218,7 @@ chmod +x *.sh
 "
 
 #3 Install JSAGA,GridEngine,rOCCI
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh
@@ -235,7 +234,7 @@ if [ "${MYSQL_RPAS}" != "" ]; then
 else
   SETUPFGAPIERVER_DB="mysql -u root"
 fi
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 cd \$FGLOCATION
 git clone https://github.com/FutureGateway/fgAPIServer.git
@@ -259,9 +258,9 @@ ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
 EOF
-scp -P $SSHPORT setup_APIServerDaemon.sh $VMUSER@$VMIP:
+scp $SSHKOPTS -P $SSHPORT setup_APIServerDaemon.sh $VMUSER@$VMIP:
 rm -f setup_APIServerDaemon.sh
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x setup_APIServerDaemon.sh
 ./setup_APIServerDaemon.sh
@@ -286,8 +285,8 @@ IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
-scp -P $SSHPORT customize_DBApps.sh $VMUSER@$VMIP:
-ssh $SSHKOPTS -t $VMUSER@$VMIP "
+scp $SSHKOPTS -P $SSHPORT customize_DBApps.sh $VMUSER@$VMIP:
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x customize_DBApps.sh
 ./customize_DBApps.sh
