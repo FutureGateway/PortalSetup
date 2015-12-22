@@ -39,6 +39,14 @@ if [ $OPTPASS -eq 0 ]; then
   echo "Usage $SCRIPTNAME <fgusername> <vm host/ip address> <ssh_port> <ssh_pubkey>"
   exit 1
 fi
+  
+echo "#"
+echo "# Executing FutureGateway general setup script ..."
+echo "#"
+echo "VMUSER   : '"$VMUSER"'"
+echo "VMIP     : '"$VMIP"'"
+echo "SSHPORT  : '"$SSHPORT"'"
+echo "SSHPUBKEY: '"$SSHPUBKEY"'"
 
 SSHKOPTS="-p $SSHPORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
