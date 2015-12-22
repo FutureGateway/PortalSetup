@@ -29,13 +29,18 @@ VMIP=$2
 if [ "${3}" = "" ]; then
   OPTPASS=0
 fi
-SSHPUBKEY="$3"
+SSHPORT="$3"
+if [ "${4}" = "" ]; then
+  OPTPASS=0
+fi
+SSHPUBKEY="$4"
+# Check for option PASS flag
 if [ $OPTPASS -eq 0 ]; then
-  echo "Usage $SCRIPTNAME <fgusername> <vm host/ip address> <ssh_pubkey>"
+  echo "Usage $SCRIPTNAME <fgusername> <vm host/ip address> <ssh_port> <ssh_pubkey>"
   exit 1
 fi
 
-SSHKOPTS="-p 2428 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+SSHKOPTS="-p $SSHPORT -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
 MYSQL_RPAS=
@@ -196,7 +201,7 @@ get_file() {
   fi
 }
 EOF
-scp $SSHKOPTS setup_config.sh $VMUSER@$VMIP:
+scp -P $SSHPORT $SSHKOPTS setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
@@ -246,7 +251,7 @@ ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
 EOF
-scp $SSHKOPTS setup_APIServerDaemon.sh $VMUSER@$VMIP:
+scp -P $SSHPORT $SSHKOPTS setup_APIServerDaemon.sh $VMUSER@$VMIP:
 rm -f setup_APIServerDaemon.sh
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
@@ -273,7 +278,7 @@ IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
-scp $SSHKOPTS customize_DBApps.sh $VMUSER@$VMIP:
+scp -P $SSHPORT $SSHKOPTS customize_DBApps.sh $VMUSER@$VMIP:
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x customize_DBApps.sh
