@@ -1,0 +1,27 @@
+#cloud-config
+hostname: futuregateway
+manage_etc_hosts: true
+users:
+    - name: futuregateway
+      groups: sudo
+      shell: /bin/bash
+      sudo: ['ALL=(ALL) NOPASSWD:ALL']
+      lock-passwd: true
+      ssh-import-id: futuregateway
+      ssh-authorized-keys:
+        - <place here your ssh public key> 
+write_files:
+  - path: /root/installFG.sh
+    permissions: "0755"
+    owner: "root"
+    content: |
+      #!/bin/bash
+      cd /root
+      wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
+      chmod +x fgSetup.sh
+      cat /dev/zero | ssh-keygen -q -N ""
+      cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
+      ./fgSetup.sh futuregateway futuregateway $(cat /root/.ssh/id_rsa.pub)
+runcmd:
+  - /bin/bash /root/installFG.sh 2>/root/install.err > /root/install.out
+
