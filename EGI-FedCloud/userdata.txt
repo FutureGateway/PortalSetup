@@ -16,12 +16,14 @@ write_files:
     owner: "root"
     content: |
       #!/bin/bash
+      touch /home/futuregateway/.installingFG
       cd /root
       wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
       chmod +x fgSetup.sh
       cat /dev/zero | ssh-keygen -q -N ""
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
       ./fgSetup.sh futuregateway futuregateway $(cat /root/.ssh/id_rsa.pub)
+	  rm -f /home/futuregateway/.installingFG
 runcmd:
   - /bin/bash /root/installFG.sh 2>/root/install.err > /root/install.out
 
