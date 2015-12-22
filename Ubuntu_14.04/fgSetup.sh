@@ -35,7 +35,7 @@ if [ $OPTPASS -eq 0 ]; then
   exit 1
 fi
 
-SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+SSHKOPTS="-p 2428 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
 TOMCATPAS="tomcat"
 MYSQL_RPAS=
