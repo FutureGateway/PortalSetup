@@ -201,7 +201,7 @@ get_file() {
   fi
 }
 EOF
-scp -P $SSHPORT $SSHKOPTS setup_config.sh $VMUSER@$VMIP:
+scp -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
@@ -251,7 +251,7 @@ ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
 EOF
-scp -P $SSHPORT $SSHKOPTS setup_APIServerDaemon.sh $VMUSER@$VMIP:
+scp -P $SSHPORT setup_APIServerDaemon.sh $VMUSER@$VMIP:
 rm -f setup_APIServerDaemon.sh
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
@@ -278,7 +278,7 @@ IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
-scp -P $SSHPORT $SSHKOPTS customize_DBApps.sh $VMUSER@$VMIP:
+scp -P $SSHPORT customize_DBApps.sh $VMUSER@$VMIP:
 ssh $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 chmod +x customize_DBApps.sh
