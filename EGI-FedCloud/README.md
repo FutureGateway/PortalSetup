@@ -26,7 +26,7 @@ In a production environment the API server front-end must be configured with a d
 `cd $FGLOCATION/fgAPIServer`
 `cd $FGLOCATION/fgAPIServer`
 `./fgapiserver.py`
-Detach with <ctrl-a><ctrl-d>
+Detach with \<ctrl-a\>\<ctrl-d\>
 Reattach the front-end process anytime with `screen -r fgAPIServer`
 
 ## APIServer Daemon
