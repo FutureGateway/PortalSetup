@@ -40,6 +40,10 @@ To startup the application server you may use the standard scripts provided with
 `tail -f $CATALINA_HOME/logs/catalina.out`
 It is important during development phases to constatly monitor the APIServer daemon activity, to accomplish that it is enough to have a look inside the application server log file.
 
+## Security considerations
+Although the VM has been configured to limit hackers exposure, it is warmly suggested to comply with the EGI FedCloud [directives][EGIFCDR]
+
 [FGAPPDB]: <https://appdb.egi.eu/store/vappliance/futuregateway>
 [FGAPIFE]: <https://github.com/FutureGateway/fgAPIServer>
 [FGASRVD]: <https://github.com/FutureGateway/APIServerDaemon>
+[EGIFCDR]: <https://wiki.egi.eu/wiki/Virtual_Machine_Image_Endorsement#Hardening_guidelines>
