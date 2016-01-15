@@ -281,7 +281,8 @@ RANDPASS=\$(date +%s | md5sum | base64 | head -c 12 ; echo)
 sudo usermod --password \$(echo "\$RANDPASS" | openssl passwd -1 -stdin) jobtest
 SQLCMD="update infrastructure_parameter set pvalue='\$RANDPASS' where infra_id=1 and pname='password'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
-IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
+#IPADDR=\$(ifconfig eth0 | grep "inet " | awk -F'[: ]+' '{ print \$4 }')
+IPADDR=localhost
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR:${SSHPORT}' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 EOF
