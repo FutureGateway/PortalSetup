@@ -224,9 +224,10 @@ install_tomcat8() {
   echo "" >> $CATALINA_HOME/conf/tomcat-users.xml
   cat >> $CATALINA_HOME/conf/tomcat-users.xml <<EOF
   <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
   <role rolename="tomcat"/>
   <role rolename="liferay"/>
-  <user username="${TOMCATUSR}" password="${TOMCATPAS}" roles="tomcat,liferay,manager-gui"/>
+  <user username="${TOMCATUSR}" password="${TOMCATPAS}" roles="tomcat,liferay,manager-gui,manager-script"/>
 </tomcat-users>
 EOF
   # report to .fgSetup to track success
