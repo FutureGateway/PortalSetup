@@ -285,6 +285,9 @@ mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e 
 IPADDR=localhost
 SQLCMD="update infrastructure_parameter set pvalue='ssh://\$IPADDR:${SSHPORT}' where infra_id=1 and pname='jobservice'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
+# Take care of ssh keys (known_hosts)
+mkdir -p \$HOME/.ssh
+ssh-keyscan -H -p ${SSHPORT} -t rsa localhost >> \$HOME/.ssh/known_hosts
 EOF
 scp $SSHKOPTS -P $SSHPORT customize_DBApps.sh $VMUSER@$VMIP:
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
