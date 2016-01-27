@@ -5,11 +5,11 @@ The principal aim of the FutureGateway virtual appliance is to allow Science Gat
 
 Below the commands to correctly instantiate the VM:
 
-`OCCI_RES=$(occi -e $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms $VOMS --action create --resource compute --mixin os_tpl#$OS_TPL --mixin resource_tpl#m1-large --attribute occi.core.title="fgOCCI" --context user_data="file://$HOME/userdata.txt"); echo "Resourcce: $OCCI_RES"`
+`OCCI_RES=$(occi -e $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms --action create --resource compute --mixin os_tpl#$OS_TPL --mixin resource_tpl#m1-large --attribute occi.core.title="fgOCCI" --context user_data="file://$HOME/userdata.txt"); echo "Resourcce: $OCCI_RES"`
 
 In case it is needed to assign a public IP to the given resource:
 
-`occi --endpoint $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms $VOMS --action link --resource $OCCI_RES --link /network/public`
+`occi --endpoint $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms --action link --resource $OCCI_RES --link /network/public`
 
 # Suggested procedures
 In order to test FutureGateway REST APIs, several services should be started before; in particular:
