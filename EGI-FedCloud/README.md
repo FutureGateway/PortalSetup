@@ -37,7 +37,7 @@ The API Server Daemon conists of a web application, so that it is necessary to s
 To startup the application server you may use the standard scripts provided with Tomcat or you may use the 'start\_tomcat' utility:
 
 * Startup application server:
-`start_tomcat`
+`start_tomcat`. To manage daemon activity you can use the Tomcat manager front-end with `http://<VM_IP>:8080/manager` (default credentials are tomcat/tomcat).To stop Tomcat you can use `stop_tomcat` then please verify its java process with `ps -ef | grep tomcat | grep java` if the process still perist you may use '`killjava` command.
 
 * Monitor the APIServer daemon app server activity:
 `tail -f $CATALINA_HOME/logs/catalina.out`
