@@ -5,13 +5,16 @@ The principal aim of the FutureGateway virtual appliance is to allow Science Gat
 
 Below the commands to correctly instantiate the VM:
 
-`OCCI_RES=$(occi -e $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms $VOMS --action create --resource compute --mixin os_tpl#$OS_TPL --mixin resource_tpl#m1-large --attribute occi.core.title="fgocci2" --context user_data="file://$HOME/userdata.txt"); echo "Resourcce: $OCCI_RES"`
+`OCCI_RES=$(occi -e $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms $VOMS --action create --resource compute --mixin os_tpl#$OS_TPL --mixin resource_tpl#$RESOURCE_TPL --attribute occi.core.title="fgocci2" --context user_data="file://$HOME/userdata.txt"); echo "Resourcce: $OCCI_RES"`
 
 In case it is needed to assign a public IP to the given resource:
 
 `occi --endpoint $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms --action link --resource $OCCI_RES --link /network/public`
 
 # Suggested procedures
+The instantiated VM will start to install automatically the whole FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the end of the installation procedure, please check the existence of file `/home/futuregateway/.installingFG.` If the file exists the installation procedure is in progress or finished otherwise. To check about installation details: `sudo su -` and then `tail -f install.out install.err`.
+Once finished the installation it is important to exit from any ssh connection active before the installation procedure and re-log again. During the re-connection, ssh will recognize a host identification change, then proceed to accept the new identity.
+
 In order to test FutureGateway REST APIs, several services should be started before; in particular:
 
 1. The REST APIs [front-end][FGAPPDB]
