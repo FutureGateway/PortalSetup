@@ -212,6 +212,7 @@ scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
+wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh
 chmod +x *.sh
 ./setup_FGPortal.sh
@@ -246,6 +247,8 @@ $SETUPFGAPIERVER_DB < fgapiserver_db.sql
 cat > setup_APIServerDaemon.sh <<EOF
 cd \$FGLOCATION
 git clone https://github.com/FutureGateway/APIServerDaemon.git
+# Prepare lib dir
+tar xvfz \$HOME/APIServerDaemon_lib.tar.gz -C \$FGLOCATION/APIServerDaemon/web/WEB-INF/
 # Default JSON library works for java-8; in java-7 another jar is necessary
 JVER=\$(java -version 2>&1 | head -n 1 | awk '{ print \$3 }' | sed s/\"//g | awk '{ print substr(\$1,1,3) }')
 if [ "\${JVER}" = "1.7" ]; then
