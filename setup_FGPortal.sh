@@ -278,6 +278,7 @@ EOF
 
     <!--<Manager className="com.liferay.support.tomcat.session.SessionLessManagerBase" />-->
 
+    <!-- Disabled; configured global scope resources in server.xml
     <Resource
         name="jdbc/LiferayPool"
         auth="Container"
@@ -290,6 +291,7 @@ EOF
         maxIdle="30"
         maxWait="10000"
     />
+    -->
     
     <Resource
         name="mail/MailSession"
@@ -332,6 +334,38 @@ EOF
   CATPROPSZ=$(cat catalina.properties_orig | wc -l)
   cat catalina.properties_orig | tail -n $((CATPROPSZ-CATPROPLN)) >> catalina.properties
   rm -f catalina.properties_orig
+  
+  # Configuring global-scope GridEngine jdbc resources
+  cp $CATALINA_HOME/conf/server.xml $CATALINA_HOME/conf/server.xml_orig  
+  GNRENDLINE=$(cat $CATALINA_HOME/conf/server.xml | grep -n "</GlobalNamingResources>" | awk -F":" '{ print $1 }')
+  cat $CATALINA_HOME/conf/server.xml_orig | head -n $((GNRENDLINE-1)) > $CATALINA_HOME/conf/server.xml
+  cat >> $CATALINA_HOME/conf/server.xml <<EOF
+    <Resource name="jdbc/UserTrackingPool"
+              auth="Container"
+              type="javax.sql.DataSource"
+              username="tracking_user"
+              password="usertracking"
+              driverClassName="com.mysql.jdbc.Driver"
+              description="UsersTrackingDB connection"
+              url="jdbc:mysql://localhost:3306/userstracking"
+              maxActive="100"
+              maxIdle="30"
+              maxWaitMillis="10000"/>
+
+    <Resource name="jdbc/gehibernatepool"
+              auth="Container"
+              type="javax.sql.DataSource"
+              username="tracking_user"
+              password="usertracking"
+              driverClassName="com.mysql.jdbc.Driver"
+              description="UsersTrackingDB connection"
+              url="jdbc:mysql://localhost:3306/userstracking"
+              maxActive="100"
+              maxIdle="30"
+              maxWaitMillis="10000"/>
+EOF
+  cat $CATALINA_HOME/conf/server.xml_orig | tail -n +$GNRENDLINE >> $CATALINA_HOME/conf/server.xml
+  rm -f $CATALINA_HOME/conf/server.xml_orig
   cd -
   # report to .fgSetup to track success
   get_ts
