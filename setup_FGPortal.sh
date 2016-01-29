@@ -278,7 +278,7 @@ EOF
 
     <!--<Manager className="com.liferay.support.tomcat.session.SessionLessManagerBase" />-->
 
-    <!-- Disabled; configured global scope resources in server.xml
+    <!-- GridEngine connection pool defined for Liferay -->
     <Resource
         name="jdbc/LiferayPool"
         auth="Container"
@@ -287,11 +287,11 @@ EOF
         url="jdbc:mysql://${MYSQL_HOST}/${MYSQL_DBNM}?useUnicode=true&amp;characterEncoding=UTF-8"
         username="${MYSQL_USER}"
         password="${MYSQL_PASS}"
-        maxActive="100"
+        maxTotal="100"
         maxIdle="30"
-        maxWait="10000"
+        maxWaitMillis="10000"
     />
-    -->
+
     
     <Resource
         name="mail/MailSession"
@@ -348,7 +348,7 @@ EOF
               driverClassName="com.mysql.jdbc.Driver"
               description="UsersTrackingDB connection"
               url="jdbc:mysql://localhost:3306/userstracking"
-              maxActive="100"
+              maxTotal="100"
               maxIdle="30"
               maxWaitMillis="10000"/>
 
@@ -360,7 +360,7 @@ EOF
               driverClassName="com.mysql.jdbc.Driver"
               description="UsersTrackingDB connection"
               url="jdbc:mysql://localhost:3306/userstracking"
-              maxActive="100"
+              maxTotal="100"
               maxIdle="30"
               maxWaitMillis="10000"/>
 EOF
