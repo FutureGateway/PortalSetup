@@ -72,10 +72,13 @@ export DEBIAN_FRONTEND=\"noninteractive\"
 sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password $DBROOTPASS\"
 sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password $DBROOTPASS\"
 sudo apt-get -y update
-PKGS=\"mysql-server \
+PKGS=\"wget \
+ssh-client \
+ssh-server \
+mysql-client \
+mysql-server \
 openjdk-7-jdk \
 build-essential \
-wget \
 mlocate \
 unzip \
 curl \
@@ -85,10 +88,13 @@ libapache2-mod-wsgi \
 python-Flask \
 python-MySQLdb \
 git \
-openvpn\"
+openvpn\
+screen \"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
+service ssh restart
+service mysql restart
 "
 
 # 3) Install FGPortal
