@@ -73,8 +73,8 @@ sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password passwo
 sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password $DBROOTPASS\"
 sudo apt-get -y update
 PKGS=\"wget \
-ssh-client \
-ssh-server \
+openssh-client \
+openssh-server \
 mysql-client \
 mysql-server \
 openjdk-7-jdk \
