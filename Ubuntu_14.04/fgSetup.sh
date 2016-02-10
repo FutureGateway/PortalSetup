@@ -280,7 +280,7 @@ rm -f ./setup_APIServerDaemon.sh
 #6 Customize DB and default app settings
 cat > customize_DBApps.sh <<EOF
 # Fix SSH connection issue on Ubuntu with JSAGA
-sudo mkdir /etc/ssh/ssh_host_disabed
+sudo mkdir /etc/ssh/ssh_host_disabled
 find  /etc/ssh/ -name 'ssh_host_*' | grep -v disabled | grep -v rsa | grep -v \_dsa | xargs -I{} sudo mv {} /etc/ssh/ssh_host_disabled/
 # Use the correct application path
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
