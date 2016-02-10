@@ -93,8 +93,8 @@ screen \"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
-service ssh restart
-service mysql restart
+sudo service ssh restart
+sudo service mysql restart
 "
 
 # 3) Install FGPortal
@@ -217,18 +217,18 @@ EOF
 scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz
-wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh
+wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
+wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
+wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh -O setup_FGPortal.sh
 chmod +x *.sh
 ./setup_FGPortal.sh
 "
 
 #3 Install JSAGA,GridEngine,rOCCI
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh
+wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh -O setup_JSAGA.sh
+wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh -O setup_GridEngine.sh
+wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh -O setup_OCCI.sh
 chmod +x setup_*.*
 sudo ./setup_JSAGA.sh
 sudo ./setup_GridEngine.sh
