@@ -1,12 +1,12 @@
 # Ubuntu 14.04
 In this section there are scripts written for the specific Ubuntu 14.04 OS release.
 
-* fgSetup.sh script can be used inside a minimal Ubuntu installation
-* docker-setup.sh script can be used inside a docker ubuntu template; this script prepares the environment and then uses fgSetup.sh
+* `fgSetup.sh` script can be used inside a minimal Ubuntu installation
+* `docker-setup.sh` script can be used inside a docker ubuntu template; this script prepares the environment and then uses fgSetup.sh
 
 # Suggested procedures
-The instantiated VM will start to install automatically the whole FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the end of the installation procedure, please check the existence of file `/home/futuregateway/.installingFG.` If the file exists the installation procedure is in progress or finished otherwise. To check about installation details: `sudo su -` and then `tail -f install.out install.err`.
-Once finished the installation it is important to exit from any ssh connection active before the installation procedure and re-log again. During the re-connection, ssh will recognize a host identification change, then proceed to accept the new identity.
+The installation scritps will instantiate the full FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the status or the end of the installation procedure, please check the output of the scripit. 
+Once finished the installation it is important to exit from any ssh connection active before the installation procedure and re-log again. During the re-connection, ssh will recognize a host identification change, then proceed to accept the new identity. In case the script have been executed from root it is enough to change the user with `su - futuregateway`.
 
 In order to test FutureGateway REST APIs, several services should be started before; in particular:
 
