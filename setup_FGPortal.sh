@@ -14,7 +14,7 @@ LIFERAY_SDK_ON=1                                    # 0 - SDK will be not instal
 LIFERAY_SDK_LOCATION=$HOME/Documents/FutureGateway  # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
-TIMEZONE="UTC"                                      # Set portal timezone (portal operates at GMT)
+TIMEZONE=$(date +%Z)                                # Set portal timezone as system timezone (portal should operate at UTC)
 SETUPDB=1                                           # 1 - Initialize Liferay DB
 # Below MYSQL settings...                           # !!! WARNING enabling this flag
 MYSQL_HOST=localhost                                # any existing DB will be dropped

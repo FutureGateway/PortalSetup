@@ -31,7 +31,7 @@ FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variable
 #LIFERAY_SDK_LOCATION=$FGLOCATION                    # Liferay SDK will be placed here
 #MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 #STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
-#TIMEZONE="GMT+1"                                    # Set portal timezone
+#TIMEZONE=$(date +%Z)                                # Set portal timezone as system timezone (portal should operate at UTC)
 #SETUPDB=1                                           # 1 - Initialize Liferay DB
 # Below MYSQL settings...                           # !!! WARNING enabling this flag
 #MYSQL_HOST=localhost                                # any existing DB will be dropped
