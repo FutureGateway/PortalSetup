@@ -128,6 +128,7 @@ FGENV=\$FGLOCATION/setenv.sh                # FutureGateway environment variable
 #
 TOMCATUSR=${TOMCATUSR}                              # TOMCAT username
 TOMCATPAS=${TOMCATPAS}                              # TOMCAT password
+SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)

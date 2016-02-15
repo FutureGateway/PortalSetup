@@ -10,6 +10,7 @@
 #
 TOMCATUSR="tomcat"                                  # TOMCAT username
 TOMCATPAS="tomcat"                                  # TOMCAT password
+SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=$HOME/Documents/FutureGateway  # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
@@ -413,7 +414,7 @@ install_liferay_dependencies() {
 }
 
 # liferay_sdk isntallation step (apache.ant)
-install_liferay_sdk_ant() {
+install_ant() {
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "apacheant")
   else
@@ -438,7 +439,11 @@ install_liferay_sdk_ant() {
   echo "$TS       apacheant" >> $RUNDIR/.fgSetup
 }
 
-install_liferay_sdk_maven() {
+install_maven() {
+  if [ $MAVEN_ON -eq 0 ]; then
+    echo "Skipping maven installation"
+    return 0
+  fi
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "apachemaven")
   else
@@ -448,11 +453,7 @@ install_liferay_sdk_maven() {
     echo "Maven seems to be already installed; skipping this phase"
     export PATH=$PATH:$FGLOCATION/apache-maven-3.3.3
     return 0
-  fi
-  if [ $MAVEN_ON -eq 0 ]; then
-    echo "Skipping LIFERAY SDK"
-    return 0
-  fi
+  fi  
   get_file http://apache.panu.it/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
   unzip apache-maven-3.3.3-bin.zip
   rm -f apache-maven-3.3.3-bin.zip
@@ -465,6 +466,10 @@ install_liferay_sdk_maven() {
 
 # installl liferay_sdk
 install_liferay_sdk() {
+  if [ $LIFERAY_SDK_ON -eq 0 ]; then
+    echo "Skipping LIFERAY SDK"
+    return 0
+  fi
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_sdk")
   else
@@ -473,14 +478,9 @@ install_liferay_sdk() {
   if [ "${SETUPCHK}" != "" ]; then
     echo "Liferay SDK seems to be already installed; skipping this phase"
     return 0
-  fi
-  if [ $LIFERAY_SDK_ON -eq 0 ]; then
-    echo "Skipping LIFERAY SDK"
-    return 0
-  fi
-  
-  echo "Installing Liferay SDK v6.2"
-  install_liferay_sdk_ant
+  fi    
+  echo "Installing Liferay SDK v6.2"  
+  #install_liferay_sdk_ant (moved to new 'devtools' step, function renamed to install_ant)
   echo "Installing LIFERAY SDK"
   get_file http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.3%20GA4/liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip/download $FGLOCATION liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip
   unzip $FGLOCATION/liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip -d $LIFERAY_SDK_LOCATION
@@ -507,17 +507,44 @@ install_liferay_sdk() {
   rm -rf fginstallation # Remove fginstallation portlet
   cd -
   
-  # maven
-  echo "Installing Maven"
-  install_liferay_sdk_maven
+  # maven (moved to new 'devtools' step, , function renamed to install_maven)
+  #echo "Installing Maven"
+  #install_liferay_sdk_maven
 
   # report to .fgSetup to track success    
   get_ts
   echo "$TS     lfry_sdk" >> $RUNDIR/.fgSetup
 }
 
+
+# install development tools (ant and optionally maven)
+install_devtools
+{
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "devtools")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "Liferay SDK seems to be already installed; skipping this phase"
+    return 0
+  fi
+  echo "Installing development tools (ant/maven)"
+  # Ant remain necessary for the rest of the installation
+  install_ant
+  # Install maven if required at setup
+  install_maven
+  # report to .fgSetup to track success    
+  get_ts
+  echo "$TS     devtools" >> $RUNDIR/.fgSetup
+}
+
 # Download and isntall Liferay community ed. 6.2.3 and its SDK (if requested)
 install_liferay() {
+  if [ $SKIP_LIFERAY -ne 0 ]; then
+    echo "Skipping Liferay installation;"
+    return 0
+  fi
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "liferay")
   else
@@ -706,9 +733,10 @@ if [ "${1}" != "" ]; then
 else
   echo "Installing FutureGateway ..."
   # Perform installation
-  preinstall_fg &&       \
-  install_tomcat8 &&     \
-  install_liferay &&     \
+  preinstall_fg    && \
+  install_tomcat8  && \
+  install_devtools && \
+  install_liferay  && \
   postinstall_fg
 fi
 exit 0
