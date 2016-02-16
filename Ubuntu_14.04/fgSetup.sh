@@ -88,7 +88,7 @@ libapache2-mod-wsgi \
 python-Flask \
 python-MySQLdb \
 git \
-openvpn\
+openvpn \
 screen \"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
