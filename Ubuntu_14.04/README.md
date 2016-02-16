@@ -4,6 +4,17 @@ In this section there are scripts written for the specific Ubuntu 14.04 OS relea
 * `fgSetup.sh` script can be used inside a minimal Ubuntu installation
 * `docker-setup.sh` script can be used inside a docker ubuntu template; this script prepares the environment and then uses fgSetup.sh
 
+# fgSetup
+In order to install the FutureGateway, just execute as root user:
+
+`wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh`
+`chmod +x fgSetup.sh`
+`cat /dev/zero | ssh-keygen -q -N ""`
+`cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys`
+`./fgSetup.sh futuregateway futuregateway <your ssh port> $(cat /root/.ssh/id_rsa.pub)`
+
+The installation procedure should start and it requires a while to complete.
+
 # Suggested procedures
 The installation scritps will instantiate the full FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the status or the end of the installation procedure, please check the output of the scripit. 
 Once finished the installation it is important to exit from any ssh connection active before the installation procedure and re-log again. During the re-connection, ssh will recognize a host identification change, then proceed to accept the new identity. In case the script have been executed from root it is enough to change the user with `su - futuregateway`.
