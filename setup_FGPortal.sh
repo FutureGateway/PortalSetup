@@ -518,7 +518,7 @@ install_liferay_sdk() {
 
 
 # install development tools (ant and optionally maven)
-install_devtools
+install_devtools()
 {
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "devtools")
