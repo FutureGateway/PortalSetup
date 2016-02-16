@@ -59,7 +59,7 @@ preinstall_fg() {
     return 1
   fi
   # MySQL database
-  if [ $SETUPDB -ne 0 ]; then
+  if [ $SETUPDB -ne 0 -a $SKIP_LIFERAY -eq 0 ]; then
     cat > /tmp/lportal_create.sql <<EOF
 -- FutureGateway: lportal database creation script
 -- !!! PAY ATTENTION existing lportal databse on the !!!
