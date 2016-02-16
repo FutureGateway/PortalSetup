@@ -8,6 +8,8 @@ In this section there are scripts written for the specific Ubuntu 14.04 OS relea
 In order to install the FutureGateway, just execute as root user:
 
 ```sh
+# IP=$(ifconfig | grep  -A 2 eth0 | grep inet\ addr | awk -F':' '{ print $2 }' | awk '{ print $1 }' | xargs echo)
+# echo "$IP    futuregateway" >> /etc/hosts
 # adduser --disabled-password --gecos "" futuregateway 
 # mkdir -p /home/futuregateway/.ssh
 # chown futuregateway:futuregateway /home/futuregateway/.ssh
