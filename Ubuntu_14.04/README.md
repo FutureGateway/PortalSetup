@@ -15,10 +15,11 @@ In order to install the FutureGateway, just execute as root user:
 # chmod +x fgSetup.sh
 # cat /dev/zero | ssh-keygen -q -N ""
 # cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
+# echo "#FGSetup remove the following after installation" >> /etc/sudoers
+# echo "ALL  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # ./fgSetup.sh futuregateway futuregateway <your ssh port> $(cat /root/.ssh/id_rsa.pub)
 ```
-
-The installation procedure should start and it requires a while to complete.
+Before to execute `fgSetup.sh` it is recommended to open it and verify inside its content, the default settings specifyed while generating file setup_config.sh. Executing the last statement above, the installation procedure should start and it requires a while to complete.
 
 # Suggested procedures
 The installation scritps will instantiate the full FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the status or the end of the installation procedure, please check the output of the scripit. 
