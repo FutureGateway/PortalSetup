@@ -89,7 +89,8 @@ python-Flask \
 python-MySQLdb \
 git \
 openvpn \
-screen \"
+screen \
+"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done

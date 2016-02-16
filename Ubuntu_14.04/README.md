@@ -7,11 +7,13 @@ In this section there are scripts written for the specific Ubuntu 14.04 OS relea
 # fgSetup
 In order to install the FutureGateway, just execute as root user:
 
-```wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
+<code>
+wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntui\_14.04/fgSetup.sh
 chmod +x fgSetup.sh
 cat /dev/zero | ssh-keygen -q -N ""
-cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
-./fgSetup.sh futuregateway futuregateway <your ssh port> $(cat /root/.ssh/id_rsa.pub)```
+cat /root/.ssh/id\_rsa.pub >> /home/futuregateway/.ssh/authorized\_keys
+./fgSetup.sh futuregateway futuregateway <your ssh port> $(cat /root/.ssh/id\_rsa.pub)
+</code>
 
 The installation procedure should start and it requires a while to complete.
 
