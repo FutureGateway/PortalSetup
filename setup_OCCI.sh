@@ -274,6 +274,42 @@ EOF
   echo "$TS  occi" >> $RUNDIR/.fgSetup
 }
 
+# install additional VOMSES
+install_vomses() {
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "vomses")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "OCCI seems already installed; skipping this phase"
+    return 0
+  fi
+  echo "Installing additional VOMSES ..."
+  # indigo VOMS
+  echo "\"indigo\" \"voms01.ncg.ingrid.pt\" \"40100\" \"/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt\" \"indigo\"" > /etc/vomses/indigo-voms01.ncg.ingrid.pt
+  mkdir -p /etc/grid-security/vomsdir/indigo
+  cat > /etc/grid-security/vomsdir/indigo/voms01.ncg.ingrid.pt.lsc <<EOF
+/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt
+/C=PT/O=LIPCA/CN=LIP Certification Authority
+EOF
+  # fedcloud.egi.eu
+  echo "\"fedcloud.egi.eu\" \"voms1.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms1.grid.cesnet.cz
+  echo "\"fedcloud.egi.eu\" \"voms2.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms2.grid.cesnet.cz
+  mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu
+  cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.grid.cesnet.cz.lsc <<EOF
+/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz
+/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3
+EOF
+  cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms2.grid.cesnet.cz.lsc << EOF
+/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz
+/C=NL/ST=Noord-Holland/L=Amsterdam/O=TERENA/CN=TERENA eScience SSL CA 3
+EOF
+  # report to .fgSetup to track success    
+  get_ts
+  echo "$TS  vomses" >> $RUNDIR/.fgSetup
+}
+
 # post installation steps
 postinstall_occi() {
   # go back to the CURRDIR
@@ -315,6 +351,7 @@ else
   preinstall_occi   && \
   install_gsi       && \
   install_occi      && \
+  install_vomses    && \
   postinstall_occi
 fi
 
