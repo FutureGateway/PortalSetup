@@ -115,5 +115,3 @@ get_file() {
     cp "${FGREPO}/${FILENAME}" $DESTURL/$FILENAME
   fi
 }
-
-

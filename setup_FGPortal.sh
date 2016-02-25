@@ -633,6 +633,15 @@ stop_tomcat() {
         echo "ERROR: CATALINA_HOME environment variable not set"
     fi
 }
+# DB functions
+asdb() { 
+  cmd=\$(echo "\$*" | sed s/\$0//)
+  mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$cmd"
+}
+utdb() { 
+  cmd=\$(echo "\$*" | sed s/\$0//)
+  mysql -h localhost -u tracking_user -pusertracking -D userstracking -e "\$cmd"
+}
 EOF
   # Udpade bash_profile
   FGENV_PROFILE=$(cat $HOME/.bash_profile | grep "FutureGateway")
