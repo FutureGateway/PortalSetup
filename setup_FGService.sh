@@ -53,7 +53,7 @@ futuregateway_proc() {
 }
 
 frontend_session() {
-  SESSION=$(su - \$FGUSER -c "screen -ls | grep \$FRONTENDSESSIONNAME")
+  SESSION=\$(su - \$FGUSER -c "screen -ls | grep \$FRONTENDSESSIONNAME")
   echo \$SESSION | awk '{ print \$1 }' | xargs echo
 }
 
@@ -141,8 +141,22 @@ case "\$1" in
    sleep 20
    futuregateway_start
    ;;
+ status)
+   JAVAPROC=\$(futuregateway_proc)
+   if [ "\$JAVAPROC" != "" ]; then
+     echo "Futuregateway is up and running"
+   else
+     echo "Futuregateway is stopped"
+   fi
+   FRONTENDSESSION=\$(frontend_session)
+   if [ "\$FRONTENDSESSION" != "" ]; then
+     echo "APIServer front-end is up and running"
+   else
+     echo "APIServer front-end is stopped"
+   fi
+   ;;
  *)
-   echo "Usage: futuregateway {start|stop|restart}" >&2
+   echo "Usage: futuregateway {start|stop|restart|status}" >&2
    exit 3
    ;;
 esac
