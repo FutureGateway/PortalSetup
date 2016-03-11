@@ -150,7 +150,7 @@ EOF
 chmod a+x /etc/init.d/futuregateway
 if [ "$APTGET" != "" ]; then
   update-rc.d futuregateway defaults
-elif
+else
   chkconfig futuregateway on
 fi
 
