@@ -600,17 +600,17 @@ killjava() {
     if [ "\${1}" = "-f" ]; then
       KILLARG="-9"
     fi
-    PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | awk '{ print \$2}') 
+    PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}') 
     while [ "\${PROC}" != "" ]; do  
         kill \$KILLARG \$PROC;         
         sleep 1
-        PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | awk '{ print \$2}')
+        PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}')
     done
 }
 start_tomcat() {
     ARG=\$1
     if [ $((ARG*ARG)) -ne 0 ]; then
-        RESTOFCOMMANDARG=" && tail -f \$CATALINA_HOME/logs/catalina.out"
+        RESTOFCOMMANDARG="&& sleep 1 && tail -f \$CATALINA_HOME/logs/catalina.out"
     else
         RESTOFCOMMANDARG=""
     fi
@@ -635,7 +635,7 @@ stop_tomcat() {
 }
 # DB functions
 asdb() { 
-  cmd=\$(echo "\$*" | sed s/\$0//)
+  cmd=\$(echo "\$*" | sed s/\$0//)  
   mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$cmd"
 }
 utdb() { 

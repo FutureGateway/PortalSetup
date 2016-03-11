@@ -225,15 +225,17 @@ chmod +x *.sh
 ./setup_FGPortal.sh
 "
 
-#3 Install JSAGA,GridEngine,rOCCI
+#3 Install JSAGA,GridEngine,rOCCI, fgService
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh -O setup_JSAGA.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh -O setup_GridEngine.sh
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh -O setup_OCCI.sh
+wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGService.sh -O setup_FGService.sh
 chmod +x setup_*.*
 sudo ./setup_JSAGA.sh
 sudo ./setup_GridEngine.sh
 sudo ./setup_OCCI.sh # Script not really mature some tuning still necessary
+sudo ./setup_FGService.sh
 "
 
 #4 fgAPIServer
