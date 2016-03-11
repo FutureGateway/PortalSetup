@@ -130,17 +130,21 @@ futuregateway_stop() {
 }
 
 futuregateway_status() {
-  JAVAPROC=\$(futuregateway_proc)
-  if [ "\$JAVAPROC" != "" ]; then
-    echo "Futuregateway is up and running"
+  if [ \$ENABLEFRONTEND -eq 0 ]; then
+    echo "fgAPIServer front-end disabled"
   else
-    echo "Futuregateway is stopped"
-  fi
-  FRONTENDSESSION=\$(frontend_session)
-  if [ "\$FRONTENDSESSION" != "" ]; then
-    echo "APIServer front-end is up and running"
-  else
-    echo "APIServer front-end is stopped"
+    JAVAPROC=\$(futuregateway_proc)
+    if [ "\$JAVAPROC" != "" ]; then
+      echo "Futuregateway is up and running"
+    else
+      echo "Futuregateway is stopped"
+    fi
+    FRONTENDSESSION=\$(frontend_session)
+    if [ "\$FRONTENDSESSION" != "" ]; then
+      echo "APIServer front-end is up and running"
+    else
+      echo "APIServer front-end is stopped"
+    fi
   fi
 }
 

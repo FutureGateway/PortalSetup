@@ -88,6 +88,7 @@ libapache2-mod-wsgi \
 python-Flask \
 python-MySQLdb \
 git \
+ldap-utils \
 openvpn \
 screen\"
 for pkg in \$PKGS; do
