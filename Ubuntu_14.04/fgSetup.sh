@@ -99,6 +99,9 @@ sudo service mysql restart
 "
 
 # 3) Install FGPortal
+#
+# !WARNING - Following file must be aligned with the latest version of setup_config.sh script
+#
 cat >setup_config.sh <<EOF
 #!/bin/bash
 #
@@ -213,6 +216,40 @@ get_file() {
       exit 1
     fi 
     cp "\${FGREPO}/\${FILENAME}" \$DESTURL/\$FILENAME
+  fi
+}
+
+#
+# Function that replace the 1st matching occurrence of
+# a pattern with a given line into the specified filename
+#  \$1 # File to change
+#  \$2 # Matching pattern that identifies the line
+#  \$3 # New line content
+#  \$4 # Optionally specify a suffix to keep a safe copy
+replace_line() {
+  file_name=\$1   # File to change
+  pattern=\$2     # Matching pattern that identifies the line
+  new_line=\$3    # New line content
+  keep_suffix=\$4 # Optionally specify a suffix to keep a safe copy
+
+  if [ "\$file_name" != "" -a -f \$file_name -a "\$pattern" != "" ]; then
+      TMP=\$(mktemp)
+      cp \$file_name \$TMP
+      if [ "\$keep_suffix" != "" ]; then # keep a copy of replaced file
+          cp \$file_name \$file_name"_"\$keep_suffix
+      fi
+      MATCHING_LINE=\$(cat \$TMP | grep -n "\$pattern" | head -n 1 | awk -F':' '{ print \$1 }' | xargs echo)
+      if [ "\$MATCHING_LINE" != "" ]; then
+          cat \$TMP | head -n \$((MATCHING_LINE-1)) > \$file_name
+          printf "\$new_line\n" >> \$file_name 
+          cat \$TMP | tail -n +\$((MATCHING_LINE+1)) >> \$file_name
+      else
+          echo "WARNING: Did not find '"\$pattern"' in file: '"\$file_name"'"
+      fi
+      rm -f \$TMP
+  else
+      echo "You must provide an existing filename and a valid pattern"
+      return 1
   fi
 }
 EOF
