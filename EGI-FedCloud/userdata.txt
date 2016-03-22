@@ -22,7 +22,7 @@ write_files:
       chmod +x fgSetup.sh
       mv fgSetup.sh fgSetup.sh_orig0
       cat fgSetup.sh_orig0 | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<tomcat_admin_user>\"/ > fgSetup.sh_orig1
-      cat fgSetup.sh_orig1 | sed s/TOMCATPAS=\"tomcat\"/TOMCATUSR=\"<tomcat_admin_password>\"/ > fgSetup.sh
+      cat fgSetup.sh_orig1 | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"<tomcat_admin_password>\"/ > fgSetup.sh
       rm -f fgSetup.sh_orig0 fgSetup.sh_orig1
       cat /dev/zero | ssh-keygen -q -N ""
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
