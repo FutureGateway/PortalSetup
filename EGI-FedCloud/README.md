@@ -47,9 +47,10 @@ It is important during development phases to constatly monitor the APIServer dae
 `tail -f $FGLOCATION/apache-tomcat-8.0.26/webapps/APIServerDaemon/WEB-INF/logs/APIServerDaemon.log`
 
 * Monitor the GridEngine activity:
-t.b.d.
+`tail -f $FGLOCATION/apache-tomcat-8.0.26/webapps/APIServerDaemon/WEB-INF/logs/GridEngineLog.log`
 
 ## Security considerations
+Please notice that for security reasons userdata.txt file must be modified specifying your own tomcat admin user name and password.
 Although the VM has been configured to limit hackers exposure, it is warmly suggested to comply with the EGI FedCloud [directives][EGIFCDR]
 
 [FGAPPDB]: <https://appdb.egi.eu/store/vappliance/futuregateway>
