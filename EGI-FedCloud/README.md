@@ -15,7 +15,7 @@ The contextualization file `userdata.txt` has to be customized before to execute
 replace text inside the `<...>` brackets with your preferred Tomcat service admin username and password.
 Further and more sofisticated customizations could be done in the same fashion mofifying the downloaded script `fgSetup.sh`
 
-In case it is needed to assign a public IP to the given resource:
+In case it is needed to assign a public IP to the given resource, execute:
 
 `occi --endpoint $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms --action link --resource $OCCI_RES --link /network/public`
 
