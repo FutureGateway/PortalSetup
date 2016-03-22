@@ -17,12 +17,11 @@ Once finished the installation it is important to exit from any ssh connection a
 
 In order to test/use FutureGateway REST APIs, several services should be started before; in particular:
 
-1. The REST APIs [front-end][FGAPPDB]
+1. The REST APIs [front-end][FGAPIFE]
 2. The API [ServerDaemon][FGASRVD]
 
-The installation procedure provides the 'futuregateway' service control script in `/etc/init.d` directory; to control the futuregateway activity use:
-`/etc/init.d/futuregateway start|stop|restart|status` in order to respectively start, stop, restart or get the current status of services.
-For production environments is suggested to disable the front-end management through this script, since it will be in charge of wsgi configuration inside the proper apache conf file.
+The installation procedure provides the 'futuregateway' service control script in `/etc/init.d` directory, to control the futuregateway activity. Use:
+`/etc/init.d/futuregateway start|stop|restart|status` in order to respectively start, stop, restart or get the current status of futuregateway services. For production environments is suggested to disable the front-end management switching off a flag inside the service control script. In case of production environment the front-end execution will be in charge of wsgi configuration inside the proper apache conf file.
 
 ## REST APIs front-end
 In a production environment the API server front-end must be configured with a dedicated wsgi configuration inside the web server. However for testing purposes the front-end can be executed in stand-alone mode with the following set of commands:
