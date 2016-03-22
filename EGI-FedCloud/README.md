@@ -7,6 +7,14 @@ Below the commands to correctly instantiate the VM:
 
 `OCCI_RES=$(occi -e $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms $VOMS --action create --resource compute --mixin os_tpl#$OS_TPL --mixin resource_tpl#$RESOURCE_TPL --attribute occi.core.title="fgocci2" --context user_data="file://$HOME/userdata.txt"); echo "Resourcce: $OCCI_RES"`
 
+The contextualization file `userdata.txt` has to be customized before to execute the `occi` command line. In particular the user must provide its own ssh public key under cloud-init key `ssh-authorized-keys`. Another point to customize is inside the `write_files` directive for the file `/root/installFG.sh`. The following sed commands must be configured:
+
+`sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<tomcat_admin_user>\"/` 
+`sed s/TOMCATPAS=\"tomcat\"/TOMCATUSR=\"<tomcat_admin_password>\"/`
+
+replace text inside the `<...>` brackets with your preferred Tomcat service admin username and password.
+Further and more sofisticated customizations could be done in the same fashion mofifying the downloaded script `fgSetup.sh`
+
 In case it is needed to assign a public IP to the given resource:
 
 `occi --endpoint $OCCI_ENDPOINT --auth x509 --user-cred $USER_CRED --voms --action link --resource $OCCI_RES --link /network/public`
