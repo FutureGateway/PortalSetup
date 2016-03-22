@@ -15,10 +15,14 @@ In case it is needed to assign a public IP to the given resource:
 The instantiated VM will start to install automatically the whole FutureGateway environment extracting anything from GITHub, so that fresh installations will contain the latest available packages version. To know about the end of the installation procedure, please check the existence of file `/home/futuregateway/.installingFG.` If the file exists the installation procedure is in progress or finished otherwise. To check about installation details: `sudo su -` and then `tail -f install.out install.err`.
 Once finished the installation it is important to exit from any ssh connection active before the installation procedure and re-log again. During the re-connection, ssh will recognize a host identification change, then proceed to accept the new identity.
 
-In order to test FutureGateway REST APIs, several services should be started before; in particular:
+In order to test/use FutureGateway REST APIs, several services should be started before; in particular:
 
 1. The REST APIs [front-end][FGAPPDB]
 2. The API [ServerDaemon][FGASRVD]
+
+The installation procedure provides the 'futuregateway' service control script in `/etc/init.d` directory; to control the futuregateway activity use:
+`/etc/init.d/futuregateway start|stop|restart|status` in order to respectively start, stop, restart or get the current status of services.
+For production environments is suggested to disable the front-end management through this script, since it will be in charge of wsgi configuration inside the proper apache conf file.
 
 ## REST APIs front-end
 In a production environment the API server front-end must be configured with a dedicated wsgi configuration inside the web server. However for testing purposes the front-end can be executed in stand-alone mode with the following set of commands:
@@ -37,7 +41,7 @@ The API Server Daemon conists of a web application, so that it is necessary to s
 To startup the application server you may use the standard scripts provided with Tomcat or you may use the 'start\_tomcat' utility:
 
 * Startup application server:
-`start_tomcat`. To manage daemon activity you can use the Tomcat manager front-end with `http://<VM_IP>:8080/manager` (default credentials are tomcat/tomcat).To stop Tomcat you can use `stop_tomcat` then please verify its java process with `ps -ef | grep tomcat | grep java` if the process still perist you may use '`killjava` command.
+`start_tomcat`. To manage daemon activity you can use the Tomcat manager front-end with `http://<VM_IP>:8080/manager` (default credentials are tomcat/tomcat), however for security reasons, you can change these value in the contextualization script.To stop Tomcat you can use `stop_tomcat` then please verify its java process with `ps -ef | grep tomcat | grep java` if the process still perist you may use '`killjava` command.
 
 * Monitor the APIServer daemon app server activity:
 `tail -f $CATALINA_HOME/logs/catalina.out`
