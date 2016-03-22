@@ -51,6 +51,7 @@ It is important during development phases to constatly monitor the APIServer dae
 
 ## Security considerations
 Please notice that for security reasons userdata.txt file must be modified specifying your own tomcat admin user name and password.
+Please reconfigure root password  and file /etc/sudoers to improve the security.
 Although the VM has been configured to limit hackers exposure, it is warmly suggested to comply with the EGI FedCloud [directives][EGIFCDR]
 
 [FGAPPDB]: <https://appdb.egi.eu/store/vappliance/futuregateway>

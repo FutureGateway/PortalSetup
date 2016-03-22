@@ -28,9 +28,6 @@ write_files:
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
       ./fgSetup.sh futuregateway futuregateway 2428 $(cat /root/.ssh/id_rsa.pub)
 	  rm -f /home/futuregateway/.installingFG
-	  cp /etc/sudoers /etc/sudoers_orig
-	  cat /etc/sudoers_orig | sed s/%sudo/#%sudo/ > /etc/sudoers
-	  rm -f /etc/sudoers_orig
 runcmd:
   - /bin/bash /root/installFG.sh 2>/root/install.err > /root/install.out
 
