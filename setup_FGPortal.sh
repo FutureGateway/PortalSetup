@@ -43,11 +43,15 @@ preinstall_fg() {
   echo "Setup script for the FutureGateway portal"
   echo "-----------------------------------------"
   echo "The system will be installed in: $FGLOCATION"
-  if [ $LIFERAY_SDK_ON -ne 0 ]; then
-    echo "Liferay SDK will be isntalled"
-    echo "The SDK location will be in: $LIFERAY_SDK_LOCATION"
+  if [ $SKIP_LIFERAY -ne 0 ]; then
+    echo "Liferay will be not installed"
   else
-    echo "Liferay SDK will be not isntalled"
+    if [ $LIFERAY_SDK_ON -ne 0 ]; then
+      echo "Liferay SDK will be isntalled"
+      echo "The SDK location will be in: $LIFERAY_SDK_LOCATION"
+    else
+      echo "Liferay SDK will be not isntalled"
+    fi
   fi
   SYSTEM=$(uname -s)
   JVER=$(java -version 2>&1 | awk -F'"' '{ print $2 }' | awk -F"_" '{ print $1 }' | sed s/'\.'//g)
@@ -92,22 +96,24 @@ EOF
     fi
   fi
   # Test connection
-  MYSQL=$(which mysql)
-  if [ "${MYSQL}" = "" ]; then
-    echo "WARNING: The mysql client is missing; unable to test connection"
-  else
-    cat > /tmp/lportal_conntest.sql <<EOF
+  if [ $SKIP_LIFERAY -eq 0 ]; then
+    MYSQL=$(which mysql)
+    if [ "${MYSQL}" = "" ]; then
+      echo "WARNING: The mysql client is missing; unable to test connection"
+    else
+      cat > /tmp/lportal_conntest.sql <<EOF
 -- FutureGateway: lportal connection test
 show tables;
 EOF
-    $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} < /tmp/lportal_conntest.sql
-    RES=$?
-    rm -f /tmp/lportal_conntest.sql
-    if [ $RES -ne 0 ]; then
-      echo "FATAL: Unable to connect liferay database"
-      return 1
-    else
-      echo "Successfully connected to liferay database"
+      $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} < /tmp/lportal_conntest.sql
+      RES=$?
+      rm -f /tmp/lportal_conntest.sql
+      if [ $RES -ne 0 ]; then
+        echo "FATAL: Unable to connect liferay database"
+        return 1
+      else
+        echo "Successfully connected to liferay database"
+      fi
     fi
   fi
   # File repository
