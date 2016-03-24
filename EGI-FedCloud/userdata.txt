@@ -19,46 +19,36 @@ write_files:
       #      
       # installFG.sh - Download, configure and execute the fgSetup.sh script
       #
-
       # Enable the installation flag, FutureGateway is installing
       touch /home/futuregateway/.installingFG
-
       # Move to /root directory and download from Git the current fgSetup.sh script
       cd /root
       wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
-      
       # Configure the fgSetup.sh script
       #  
       # Following lines configure the setup_config.sh file contained inside the fgSetup script
       # You can configure any option just introducing the following commands:
       # mv fgSetup.sh fgSetup.sh_orig # Make a safe copy of existing fgSetup.sh script
       # cat fgSetup.sh_orig | sed s/<value to change>/<changed value> > fgSetup.sh # Place the new value
-      
       # Configure Tomcat admin username and password
       mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<place here your tomcat admin user name>\"/ > fgSetup.sh
 	  cp fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"<place here yout tomcat admin password>\"/ > fgSetup.sh
-      
       # Enable the following two lines if your FutureGateway does not requires LIFERAY Portal installation
       #cp fgSetup.sh fgSetup.sh_orig
       #cat fgSetup.sh_orig | sed s/SKIP_LIFERAY=0/SKIP_LIFERAY=1/ > fgSetup.sh
-      
       # The orig file no longer needed and enable execution flag to fgSetup.sh file
       rm -f fgSetup.sh_orig
       chmod +x fgSetup.sh
-
       # fgSetup installation connects via ssh to futuregateway user during intallation
       # a root public key is generated and placed into futuregateway authorized_keys file 
 	  cat /dev/zero | ssh-keygen -q -N ""
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
-
       # Executing fgSetup.sh script 
       ./fgSetup.sh futuregateway futuregateway 2428 $(cat /root/.ssh/id_rsa.pub)
-
       # Setup finished, modify the futuregateway installation flag accordingly
       rm -f /home/futuregateway/.installingFG
-
       # After the installation the futuregateway service will not start automatically since 
       # several manual configurations could be still necessary before. However enablling the 
       # following line futuregateway  service will start automatically after installation
