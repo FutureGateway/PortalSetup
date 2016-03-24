@@ -33,13 +33,12 @@ write_files:
       # Configure Tomcat admin username and password
       mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<place here your tomcat admin user name>\"/ > fgSetup.sh
-	  cp fgSetup.sh fgSetup.sh_orig
+	  mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"<place here yout tomcat admin password>\"/ > fgSetup.sh
       # Enable the following two lines if your FutureGateway does not requires LIFERAY Portal installation
-      #cp fgSetup.sh fgSetup.sh_orig
+      #mv fgSetup.sh fgSetup.sh_orig
       #cat fgSetup.sh_orig | sed s/SKIP_LIFERAY=0/SKIP_LIFERAY=1/ > fgSetup.sh
-      # The orig file no longer needed and enable execution flag to fgSetup.sh file
-      rm -f fgSetup.sh_orig
+      # Enable the execution flag to fgSetup.sh file
       chmod +x fgSetup.sh
       # fgSetup installation connects via ssh to futuregateway user during intallation
       # a root public key is generated and placed into futuregateway authorized_keys file 
