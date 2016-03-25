@@ -33,7 +33,7 @@ write_files:
       # Configure Tomcat admin username and password
       mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<place here your tomcat admin user name>\"/ > fgSetup.sh
-	  mv fgSetup.sh fgSetup.sh_orig
+      mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"<place here yout tomcat admin password>\"/ > fgSetup.sh
       # Enable the following two lines if your FutureGateway does not requires LIFERAY Portal installation
       #mv fgSetup.sh fgSetup.sh_orig
@@ -42,12 +42,14 @@ write_files:
       chmod +x fgSetup.sh
       # fgSetup installation connects via ssh to futuregateway user during intallation
       # a root public key is generated and placed into futuregateway authorized_keys file 
-	  cat /dev/zero | ssh-keygen -q -N ""
+      cat /dev/zero | ssh-keygen -q -N ""
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
       # Executing fgSetup.sh script 
       ./fgSetup.sh futuregateway futuregateway 2428 $(cat /root/.ssh/id_rsa.pub)
       # Setup finished, modify the futuregateway installation flag accordingly
       rm -f /home/futuregateway/.installingFG
+      # More safe removing ubuntu user
+      sudo userdel ubuntu && sudo rm -rf /home/ubuntu/
       # After the installation the futuregateway service will not start automatically since 
       # several manual configurations could be still necessary before. However enablling the 
       # following line futuregateway  service will start automatically after installation
