@@ -44,7 +44,7 @@ write_files:
       mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"${FGTOMCAT_USR}\"/ > fgSetup.sh
       mv fgSetup.sh fgSetup.sh_orig
-      cat fgSetup.sh_orig | sed s/'TOMCATPAS="openssl rand -hex 4"'/TOMCATPAS=\"${FGTOMCAT_PAS}\"/ > fgSetup.sh
+      cat fgSetup.sh_orig | sed s/'TOMCATPAS=$(openssl rand -hex 4)'/TOMCATPAS=\"${FGTOMCAT_PAS}\"/ > fgSetup.sh
       # FutureGateway could not require LIFERAY Portal installation
       if [ $FGLIFERAY -eq 0 ]; then
         mv fgSetup.sh fgSetup.sh_orig
