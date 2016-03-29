@@ -20,6 +20,15 @@ write_files:
       # installFG.sh - Download, configure and execute the fgSetup.sh script
       #
       # Enable the installation flag, FutureGateway is installing
+      #
+      # Configure the appliance options here
+      FGSSH_PORT="<place here your ssh port>"
+      FGTOMCAT_USR="<place here your tomcat admin user name>"
+      FGTOMCAT_PAS="<place here yout tomcat admin password>"
+      # Reconfigure SSH port as requested
+      perl -pi -e 's/^#?Port 22$/Port ${FGSSH_PORT}/' /etc/ssh/sshd_config
+      service sshd restart || service ssh restart
+      # Start installation process
       touch /home/futuregateway/.installingFG
       # Move to /root directory and download from Git the current fgSetup.sh script
       cd /root
@@ -32,9 +41,9 @@ write_files:
       # cat fgSetup.sh_orig | sed s/<value to change>/<changed value> > fgSetup.sh # Place the new value
       # Configure Tomcat admin username and password
       mv fgSetup.sh fgSetup.sh_orig
-      cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"<place here your tomcat admin user name>\"/ > fgSetup.sh
+      cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"${FGTOMCAT_USR}\"/ > fgSetup.sh
       mv fgSetup.sh fgSetup.sh_orig
-      cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"<place here yout tomcat admin password>\"/ > fgSetup.sh
+      cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"${FGTOMCAT_PAS}\"/ > fgSetup.sh
       # Enable the following two lines if your FutureGateway does not requires LIFERAY Portal installation
       #mv fgSetup.sh fgSetup.sh_orig
       #cat fgSetup.sh_orig | sed s/SKIP_LIFERAY=0/SKIP_LIFERAY=1/ > fgSetup.sh
@@ -45,7 +54,7 @@ write_files:
       cat /dev/zero | ssh-keygen -q -N ""
       cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
       # Executing fgSetup.sh script 
-      ./fgSetup.sh futuregateway futuregateway 2428 $(cat /root/.ssh/id_rsa.pub)
+      ./fgSetup.sh futuregateway futuregateway $FGSSH_PORT $(cat /root/.ssh/id_rsa.pub)
       # Setup finished, modify the futuregateway installation flag accordingly
       rm -f /home/futuregateway/.installingFG
       # More safe removing ubuntu user
