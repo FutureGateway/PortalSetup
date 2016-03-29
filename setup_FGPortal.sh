@@ -9,7 +9,7 @@
 # Setup environment variables (default values)
 #
 TOMCATUSR="tomcat"                                  # TOMCAT username
-TOMCATPAS="tomcat"                                  # TOMCAT password
+TOMCATPAS=$(openssl rand -hex 4)                    # TOMCAT password
 SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=$HOME/Documents/FutureGateway  # Liferay SDK will be placed here

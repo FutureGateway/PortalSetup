@@ -49,7 +49,7 @@ echo "SSHPORT  : '"$SSHPORT"'"
 
 SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
-TOMCATPAS="tomcat"
+TOMCATPAS="openssl rand -hex 4"
 MYSQL_RPAS=
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
