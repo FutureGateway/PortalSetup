@@ -26,7 +26,7 @@ write_files:
       FGTOMCAT_USR="<place here your tomcat admin user name>"
       FGTOMCAT_PAS="<place here yout tomcat admin password>"
       # Reconfigure SSH port as requested
-      perl -pi -e 's/^#?Port 22$/Port ${FGSSH_PORT}/' /etc/ssh/sshd_config
+      perl -pi -e "s/^#?Port 22$/Port ${FGSSH_PORT}/" /etc/ssh/sshd_config
       service sshd restart || service ssh restart
       # Start installation process
       touch /home/futuregateway/.installingFG
