@@ -21,10 +21,11 @@ write_files:
       #
       # Enable the installation flag, FutureGateway is installing
       #
-      # Configure the appliance options here
-      FGSSH_PORT="<place here your ssh port>"
-      FGTOMCAT_USR="<place here your tomcat admin user name>"
-      FGTOMCAT_PAS="<place here yout tomcat admin password>"
+      # Configure the appliance options below:
+      FGLIFERAY=1                                              # Use 0 to skip liferay installation
+      FGSSH_PORT="<place here your ssh port>"                  # User can specify any ssh port (use 22 for default)
+      FGTOMCAT_USR="<place here your tomcat admin user name>"  # Tomcat administration user name
+      FGTOMCAT_PAS="<place here yout tomcat admin password>"   # Tomcat administration password
       # Reconfigure SSH port as requested
       perl -pi -e "s/^#?Port 22$/Port ${FGSSH_PORT}/" /etc/ssh/sshd_config
       service sshd restart || service ssh restart
@@ -44,11 +45,14 @@ write_files:
       cat fgSetup.sh_orig | sed s/TOMCATUSR=\"tomcat\"/TOMCATUSR=\"${FGTOMCAT_USR}\"/ > fgSetup.sh
       mv fgSetup.sh fgSetup.sh_orig
       cat fgSetup.sh_orig | sed s/TOMCATPAS=\"tomcat\"/TOMCATPAS=\"${FGTOMCAT_PAS}\"/ > fgSetup.sh
-      # Enable the following two lines if your FutureGateway does not requires LIFERAY Portal installation
-      #mv fgSetup.sh fgSetup.sh_orig
-      #cat fgSetup.sh_orig | sed s/SKIP_LIFERAY=0/SKIP_LIFERAY=1/ > fgSetup.sh
-      # Enable the execution flag to fgSetup.sh file
+      # FutureGateway could not require LIFERAY Portal installation
+      if [ $FGLIFERAY -eq 0 ]; then
+        mv fgSetup.sh fgSetup.sh_orig
+        cat fgSetup.sh_orig | sed s/SKIP_LIFERAY=0/SKIP_LIFERAY=1/ > fgSetup.sh
+      fi
+      # Enable the execution flag to fgSetup.sh file and remove the _orig
       chmod +x fgSetup.sh
+      rm -f fgSetup.sh_orig
       # fgSetup installation connects via ssh to futuregateway user during intallation
       # a root public key is generated and placed into futuregateway authorized_keys file 
       cat /dev/zero | ssh-keygen -q -N ""
