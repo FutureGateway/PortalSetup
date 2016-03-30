@@ -1,6 +1,8 @@
 #cloud-config
 hostname: futuregateway
 manage_etc_hosts: true
+package_update: true
+package_upgrade: true
 users:
     - name: futuregateway
       groups: sudo
@@ -23,12 +25,22 @@ write_files:
       #
       # Configure the appliance options below:
       FGLIFERAY=1                                              # Use 0 to skip liferay installation
+      FGREBOOT=0                                               # Use 1 to reboot after installation, thus FG service will start
       FGSSH_PORT="<place here your ssh port>"                  # User can specify any ssh port (use 22 for default)
       FGTOMCAT_USR="<place here your tomcat admin user name>"  # Tomcat administration user name
       FGTOMCAT_PAS="<place here yout tomcat admin password>"   # Tomcat administration password
       # Reconfigure SSH port as requested
-      perl -pi -e "s/^#?Port 22$/Port ${FGSSH_PORT}/" /etc/ssh/sshd_config
-      service sshd restart || service ssh restart
+      sed -i -e "/^Port/s/^.*$/Port ${FGSSH_PORT}/" /etc/ssh/sshd_config
+      sed -i -e "/^PermitRootLogin/s/^.*$/PermitRootLogin no/" /etc/ssh/sshd_config
+      restart ssh
+      # Configure ufw
+      sed -i -e '/^IPV6/s/^.*$/IPV6=no/' /etc/default/ufw
+      ufw enable
+      ufw default deny incoming
+      ufw default allow outgoing
+      ufw allow $FGSSH_PORT/tcp
+      ufw allow 80/tcp
+      ufw allow 8080/tcp
       # Start installation process
       touch /home/futuregateway/.installingFG
       # Move to /root directory and download from Git the current fgSetup.sh script
@@ -65,8 +77,13 @@ write_files:
       sudo userdel ubuntu && sudo rm -rf /home/ubuntu/
       # After the installation the futuregateway service will not start automatically since 
       # several manual configurations could be still necessary before. However enablling the 
-      # following line futuregateway  service will start automatically after installation
-      #reboot 
+      # following flag the futuregateway  service will start automatically after reboot
+      if [ $FGREBOOT -ne 0 ]; then
+        echo "Rebooting in 15 secs"
+        shutdown -r -t 15
+      else
+        echo "Installation completed"
+      fi 
 runcmd:
   - /bin/bash /root/installFG.sh 2>/root/install.err > /root/install.out
 
