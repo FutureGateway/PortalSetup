@@ -327,7 +327,7 @@ find  /etc/ssh/ -name 'ssh_host_*' | grep -v disabled | grep -v rsa | grep -v \_
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 sudo adduser --disabled-password --gecos "" jobtest
-RANDPASS=\$(date +%s | md5sum | base64 | head -c 12 ; echo)
+RANDPASS=\$(openssl rand -base64 32 | head -c 12)
 sudo usermod --password \$(echo "\$RANDPASS" | openssl passwd -1 -stdin) jobtest
 SQLCMD="update infrastructure_parameter set pvalue='\$RANDPASS' where infra_id=1 and pname='password'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
