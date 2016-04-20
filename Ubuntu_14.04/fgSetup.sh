@@ -296,6 +296,8 @@ cd \$FGLOCATION
 git clone https://github.com/FutureGateway/APIServerDaemon.git
 # Prepare lib dir
 tar xvfz \$HOME/APIServerDaemon_lib.tar.gz -C \$FGLOCATION/APIServerDaemon/web/WEB-INF/
+cp \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-tosca.jar \$FGLOCATION/jsaga-1.1.2/lib/
+cp \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-rocci.jar \$FGLOCATION/jsaga-1.1.2/lib/
 # Default JSON library works for java-8; in java-7 another jar is necessary
 JVER=\$(java -version 2>&1 | head -n 1 | awk '{ print \$3 }' | sed s/\"//g | awk '{ print substr(\$1,1,3) }')
 if [ "\${JVER}" = "1.7" ]; then
