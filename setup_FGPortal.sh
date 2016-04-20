@@ -640,13 +640,19 @@ stop_tomcat() {
     fi
 }
 # DB functions
-asdb() { 
-  cmd=\$(echo "\$*" | sed s/\$0//)  
-  mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$cmd"
+asdb() {
+  cmd=\$(echo "\$*" | sed s/\$0//)
+  if [ "\$cmd" != "" ]; then
+    cmd="-e \\"\$cmd\\""
+  fi
+  eval mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver \$cmd
 }
 utdb() { 
   cmd=\$(echo "\$*" | sed s/\$0//)
-  mysql -h localhost -u tracking_user -pusertracking -D userstracking -e "\$cmd"
+    if [ "\$cmd" != "" ]; then
+    cmd="-e \\"\$cmd\\""
+  fi
+  eval mysql -h localhost -P 3306 -u tracking_user -pusertracking userstracking \$cmd
 }
 EOF
   # Udpade bash_profile
