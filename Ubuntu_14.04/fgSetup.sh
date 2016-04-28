@@ -91,7 +91,7 @@ git \
 ldap-utils \
 openvpn \
 screen \
-jq"
+jq\"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
