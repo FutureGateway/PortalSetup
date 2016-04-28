@@ -90,7 +90,8 @@ python-MySQLdb \
 git \
 ldap-utils \
 openvpn \
-screen\"
+screen \
+jq"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
