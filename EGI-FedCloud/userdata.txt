@@ -29,6 +29,9 @@ write_files:
       FGSSH_PORT="<place here your ssh port>"                  # User can specify any ssh port (use 22 for default)
       FGTOMCAT_USR="<place here your tomcat admin user name>"  # Tomcat administration user name
       FGTOMCAT_PAS="<place here yout tomcat admin password>"   # Tomcat administration password
+      # Update nameservers
+      echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+      echo "nameserver 8.8.4.4" >> /etc/resolv.conf
       # Reconfigure SSH port as requested
       sed -i -e "/^Port/s/^.*$/Port ${FGSSH_PORT}/" /etc/ssh/sshd_config
       sed -i -e "/^PermitRootLogin/s/^.*$/PermitRootLogin no/" /etc/ssh/sshd_config
