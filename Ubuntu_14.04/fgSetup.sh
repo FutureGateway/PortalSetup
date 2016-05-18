@@ -86,6 +86,8 @@ ruby-dev \
 apache2 \
 libapache2-mod-wsgi \
 python-Flask \
+python-flask-login \
+python-crypto \
 python-MySQLdb \
 git \
 ldap-utils \
