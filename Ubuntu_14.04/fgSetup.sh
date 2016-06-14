@@ -85,6 +85,7 @@ curl \
 ruby-dev \
 apache2 \
 libapache2-mod-wsgi \
+python-pip \
 python-Flask \
 python-flask-login \
 python-crypto \
@@ -97,6 +98,7 @@ jq\"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
+sudo pip install --upgrade flask-login
 sudo service ssh restart
 sudo service mysql restart
 "
