@@ -5,17 +5,13 @@
 # 17.09.2015 - riccardo.bruno@ct.infn.it
 #
 
+# Load commons setup environment variables
+. setup_config.sh common
 
 #
 # Setup environment variables (default values)
 #
-FGUSER=Macbook                              # User owning FutureGateway files
-FGHOME=$HOME/Documents                      # This script could be executed as root; specify FG home here
-FGREPO=$FGHOME/FGRepo                       # Files could be cached into this repo directory
-FGLOCATION=$FGHOME/FutureGateway            # Location of the FutureGateway installation
-FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variables
 JSAGA_LOCATION=$FGLOCATION                  # Liferay SDK will be placed here
-FGENV=$FGLOCATION/sentenv.sh
 
 # This file contains common variables for setup_* scripts it may be used to override above settings
 . setup_config.sh

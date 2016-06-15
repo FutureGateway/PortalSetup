@@ -5,6 +5,9 @@
 # 14.09.2015 - riccardo.bruno@ct.infn.it
 #
 
+# Load commons setup environment variables
+. setup_config.sh common
+
 #
 # Setup environment variables (default values)
 #
@@ -12,7 +15,8 @@ TOMCATUSR="tomcat"                                  # TOMCAT username
 TOMCATPAS=$(openssl rand -hex 4)                    # TOMCAT password
 SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
-LIFERAY_SDK_LOCATION=$HOME/Documents/FutureGateway  # Liferay SDK will be placed here
+LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
+LIFERAY_SDK_LOCATION=$FGLOCATION                    # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 TIMEZONE=$(date +%Z)                                # Set portal timezone as system timezone (portal should operate at UTC)
@@ -38,7 +42,7 @@ preinstall_fg() {
     if [ "${ANSWER}" != "y" ]; then
       echo "Aborted"
       return 1
-    fi 
+    fi
   fi
   echo "Setup script for the FutureGateway portal"
   echo "-----------------------------------------"
@@ -122,7 +126,7 @@ EOF
     return 1
   fi
   if [ ! -d $FGREPO ]; then
-    echo "Not existing file repository; creating it at: $FGREPO"    
+    echo "Not existing file repository; creating it at: $FGREPO"
     # Encoded FGRepo
     if [ -f FGRepo.tar.gz ]; then
       echo "Found the repository archive package; installing it"
@@ -147,7 +151,7 @@ EOF
   # directory (RUNDIR) for future reference to .fgSetup
   RUNDIR=$(pwd)
   mkdir -p $FGLOCATION
-  # From now on the each installation phase assumes that the 
+  # From now on the each installation phase assumes that the
   # current directory is $FGLOCATION; during the installation
   # the current directory could be changed but always included
   # into a: cd .../newpath; cd - block statements
@@ -183,10 +187,10 @@ install_tomcat8() {
   if [ "${SETUPCHK}" != "" ]; then
     echo "Apache tomcat seems to be already installed; skipping this phase"
     if [ "${SYSTEM}" = "Darwin" ]; then # MacOSX
-      export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.26
+      export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.36
       export JAVA_HOME=$(/usr/libexec/java_home)
     elif [ "${SYSTEM}" = "Linux" ]; then
-      export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.26
+      export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.36
       export JAVA_HOME=$(readlink -f $(which java) | sed s/"\/bin\/java"//)
     else
       echo "FATAL: Unsupported system (${SYSTEM}), environment variables not set"
@@ -198,24 +202,24 @@ install_tomcat8() {
     fi
     return 0
   fi
-  echo "Installing Apache Tomcat 8.0.26"
-  get_file http://it.apache.contactlab.it/tomcat/tomcat-8/v8.0.26/bin/apache-tomcat-8.0.26.zip
-  unzip apache-tomcat-8.0.26.zip 
-  rm -f apache-tomcat-8.0.26.zip
-  chmod +x $FGLOCATION/apache-tomcat-8.0.26/bin/*.sh
+  echo "Installing Apache Tomcat 8.0.36"
+  get_file http://it.apache.contactlab.it/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.zip
+  unzip apache-tomcat-8.0.36.zip
+  rm -f apache-tomcat-8.0.36.zip
+  chmod +x $FGLOCATION/apache-tomcat-8.0.36/bin/*.sh
   # Set the environment
   echo "${SYSTEM} system detected; updating setenv.sh file accordingly"
   if [ "${SYSTEM}" = "Darwin" ]; then # MacOSX
-    echo "" >> $FGENV 
-    echo "export CATALINA_HOME=${FGLOCATION}/apache-tomcat-8.0.26" >> $FGENV 
-    echo "export JAVA_HOME=\$(/usr/libexec/java_home)" >> $FGENV 
-    export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.26
+    echo "" >> $FGENV
+    echo "export CATALINA_HOME=${FGLOCATION}/apache-tomcat-8.0.36" >> $FGENV
+    echo "export JAVA_HOME=\$(/usr/libexec/java_home)" >> $FGENV
+    export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.36
     export JAVA_HOME=$(/usr/libexec/java_home)
   elif [ "${SYSTEM}" = "Linux" ]; then
-    echo "" >> $FGENV 
-    echo "export CATALINA_HOME=${FGLOCATION}/apache-tomcat-8.0.26" >> $FGENV 
-    echo "export JAVA_HOME=\$(readlink -f $(which java) | sed s/\"\/bin\/java\"//)" >> $FGENV 
-    export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.26
+    echo "" >> $FGENV
+    echo "export CATALINA_HOME=${FGLOCATION}/apache-tomcat-8.0.36" >> $FGENV
+    echo "export JAVA_HOME=\$(readlink -f $(which java) | sed s/\"\/bin\/java\"//)" >> $FGENV
+    export CATALINA_HOME=$FGLOCATION/apache-tomcat-8.0.36
     export JAVA_HOME=$(readlink -f $(which java) | sed s/"\/bin\/java"//)
   else
     echo "WARNING: Unsupported system (${SYSTEM}), environment variables not set"
@@ -239,7 +243,7 @@ install_tomcat8() {
 EOF
   # Install Tomcat GridEnginePools
   # Configuring global-scope GridEngine jdbc resources
-  cp $CATALINA_HOME/conf/server.xml $CATALINA_HOME/conf/server.xml_orig  
+  cp $CATALINA_HOME/conf/server.xml $CATALINA_HOME/conf/server.xml_orig
   GNRENDLINE=$(cat $CATALINA_HOME/conf/server.xml | grep -n "</GlobalNamingResources>" | awk -F":" '{ print $1 }')
   cat $CATALINA_HOME/conf/server.xml_orig | head -n $((GNRENDLINE-1)) > $CATALINA_HOME/conf/server.xml
   cat >> $CATALINA_HOME/conf/server.xml <<EOF
@@ -276,19 +280,19 @@ EOF
 }
 
 # liferay isntallation step (tomcat configuration)
-install_liferay_conftomcat() {
+install_liferay_conftomcat6() {
   if [ -e $RUNDIR/.fgSetup ]; then
-    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_tconf")
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_tconf6")
   else
     SETUPCHK=""
   fi
   if [ "${SETUPCHK}" != "" ]; then
-    echo "Liferay tomcat configuration seems to be already installed; skipping this phase"
+    echo "Liferay6 tomcat configuration seems to be already installed; skipping this phase"
     return 0
-  fi  
+  fi
   # Tomcat configuration
   cat > $CATALINA_HOME/bin/setenv.sh <<EOF
-CATALINA_OPTS="\$CATALINA_OPTS -Dfile.encoding=UTF8 -Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Duser.timezone=${TIMEZONE} -Xmx1024m -XX:MaxPermSize=256m"
+CATALINA_OPTS="\$CATALINA_OPTS -Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true  -Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Duser.timezone=${TIMEZONE} -Xmx1024m -XX:MaxPermSize=384m"
 EOF
   chmod +x $CATALINA_HOME/bin/setenv.sh
   mkdir -p $CATALINA_HOME/conf/Catalina/localhost
@@ -331,7 +335,7 @@ EOF
         maxWaitMillis="10000"
     />
 
-    
+
     <Resource
         name="mail/MailSession"
         auth="Container"
@@ -373,22 +377,22 @@ EOF
   CATPROPSZ=$(cat catalina.properties_orig | wc -l)
   cat catalina.properties_orig | tail -n $((CATPROPSZ-CATPROPLN)) >> catalina.properties
   rm -f catalina.properties_orig
-  
+
   cd -
   # report to .fgSetup to track success
   get_ts
-  echo "$TS     lfry_tconf" >> $RUNDIR/.fgSetup
+  echo "$TS     lfry_tconf6" >> $RUNDIR/.fgSetup
 }
 
-# liferay isntallation step (liferay dependencies for tomcat)
-install_liferay_dependencies() {
+# installliferay dependencies for tomcat7 (it works for tomcat8 as well)
+install_liferay_dependencies6() {
   if [ -e $RUNDIR/.fgSetup ]; then
-    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_deps")
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_deps6")
   else
     SETUPCHK=""
   fi
   if [ "${SETUPCHK}" != "" ]; then
-    echo "Liferay dependencies seem to be already installed; skipping this phase"
+    echo "Liferay6 dependencies seem to be already installed; skipping this phase"
     return 0
   fi
   # Liferay dependencies
@@ -396,10 +400,11 @@ install_liferay_dependencies() {
   get_file http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.3%20GA4/liferay-portal-dependencies-6.2-ce-ga4-20150416163831865.zip/download "" liferay-portal-dependencies-6.2-ce-ga4-20150416163831865.zip
   unzip liferay-portal-dependencies-6.2-ce-ga4-20150416163831865.zip
   cd liferay-portal-dependencies-6.2-ce-ga4
+  mkdir -p $CATALINA_HOME/lib/ext/
   cp *.jar $CATALINA_HOME/lib/ext/
   cd -
   rm -rf  liferay-portal-dependencies-6.2-ce-ga4 liferay-portal-dependencies-6.2-ce-ga4-20150416163831865.zip
-  get_file http://search.maven.org/remotecontent?filepath=com/liferay/portal/support-tomcat/6.2.1/support-tomcat-6.2.1.jar $CATALINA_HOME/lib/ext 
+  get_file http://search.maven.org/remotecontent?filepath=com/liferay/portal/support-tomcat/6.2.1/support-tomcat-6.2.1.jar $CATALINA_HOME/lib/ext
   # Now get other jars from source distribution
   get_file "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.2.3%20GA4/liferay-portal-src-6.2-ce-ga4-20150416163831865.zip?r=http%3A%2F%2Fwww.liferay.com%2Fdownloads%2Fliferay-portal%2Favailable-releases&ts=1442310167&use_mirror=vorboss" "" liferay-portal-src-6.2-ce-ga4-20150416163831865.zip
   unzip liferay-portal-src-6.2-ce-ga4-20150416163831865.zip
@@ -417,7 +422,7 @@ install_liferay_dependencies() {
   get_file http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.21/mysql-connector-java-5.1.21.jar $CATALINA_HOME/lib/ext
   # report to .fgSetup to track success
   get_ts
-  echo "$TS     lfry_deps" >> $RUNDIR/.fgSetup
+  echo "$TS     lfry_deps6" >> $RUNDIR/.fgSetup
 }
 
 # liferay_sdk isntallation step (apache.ant)
@@ -429,19 +434,19 @@ install_ant() {
   fi
   if [ "${SETUPCHK}" != "" ]; then
     echo "Apache ANT seems to be already installed; skipping this phase"
-    export ANT_HOME=${FGLOCATION}/apache-ant-1.9.6
+    export ANT_HOME=${FGLOCATION}/apache-ant-1.9.7
     export PATH=${PATH}:${ANT_HOME}/bin
     return 0
   fi
   echo "Installing ANT (pre-requisite)"
-  get_file http://it.apache.contactlab.it//ant/binaries/apache-ant-1.9.6-bin.zip
-  unzip apache-ant-1.9.6-bin.zip
-  rm -f apache-ant-1.9.6-bin.zip
-  echo "export ANT_HOME=${FGLOCATION}/apache-ant-1.9.6" >> $FGENV 
-  echo "export PATH=\$PATH:\${ANT_HOME}/bin" >> $FGENV 
-  export ANT_HOME=${FGLOCATION}/apache-ant-1.9.6
+  get_file http://it.apache.contactlab.it//ant/binaries/apache-ant-1.9.7-bin.zip
+  unzip apache-ant-1.9.7-bin.zip
+  rm -f apache-ant-1.9.7-bin.zip
+  echo "export ANT_HOME=${FGLOCATION}/apache-ant-1.9.7" >> $FGENV
+  echo "export PATH=\$PATH:\${ANT_HOME}/bin" >> $FGENV
+  export ANT_HOME=${FGLOCATION}/apache-ant-1.9.7
   export PATH=$PATH:${ANT_HOME}/bin
-  # report to .fgSetup to track success  
+  # report to .fgSetup to track success
   get_ts
   echo "$TS       apacheant" >> $RUNDIR/.fgSetup
 }
@@ -460,45 +465,45 @@ install_maven() {
     echo "Maven seems to be already installed; skipping this phase"
     export PATH=$PATH:$FGLOCATION/apache-maven-3.3.3
     return 0
-  fi  
+  fi
   get_file http://apache.panu.it/maven/maven-3/3.3.3/binaries/apache-maven-3.3.3-bin.zip
   unzip apache-maven-3.3.3-bin.zip
   rm -f apache-maven-3.3.3-bin.zip
-  echo "export PATH=\$PATH:$FGLOCATION/apache-maven-3.3.3/bin" >> $FGENV 
+  echo "export PATH=\$PATH:$FGLOCATION/apache-maven-3.3.3/bin" >> $FGENV
   export PATH=$PATH:$FGLOCATION/apache-maven-3.3.3
-  # report to .fgSetup to track success    
+  # report to .fgSetup to track success
   get_ts
   echo "$TS       apachemaven" >> $RUNDIR/.fgSetup
 }
 
-# installl liferay_sdk
-install_liferay_sdk() {
+# installl liferay_sdk for Liferay v6.2.3
+install_liferay_sdk6() {
   if [ $LIFERAY_SDK_ON -eq 0 ]; then
     echo "Skipping LIFERAY SDK"
     return 0
   fi
   if [ -e $RUNDIR/.fgSetup ]; then
-    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_sdk")
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_sdk6")
   else
     SETUPCHK=""
   fi
   if [ "${SETUPCHK}" != "" ]; then
     echo "Liferay SDK seems to be already installed; skipping this phase"
     return 0
-  fi    
-  echo "Installing Liferay SDK v6.2"  
+  fi
+  echo "Installing Liferay SDK v6.2"
   #install_liferay_sdk_ant (moved to new 'devtools' step, function renamed to install_ant)
   echo "Installing LIFERAY SDK"
   get_file http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.3%20GA4/liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip/download $FGLOCATION liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip
   unzip $FGLOCATION/liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip -d $LIFERAY_SDK_LOCATION
-  rm -f liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip 
+  rm -f liferay-plugins-sdk-6.2-ce-ga4-20150416163831865.zip
   cd $LIFERAY_SDK_LOCATION/liferay-plugins-sdk-6.2
   mv build.properties build.properties_orig
   cat build.properties_orig | sed s/"tomcat-7\.0\.42"/"apache-tomcat-8\.0\.26"/ > build.properties_1
   cat build.properties_1 | sed s/"\${sdk\.dir}\/\.\.\/bundles"/"\${sdk\.dir}\/\.\.\/"/ > build.properties
   rm -f build.properties_1
   rm -f build.properties_orig
-  # Future changes may be placed for    
+  # Future changes may be placed for
   #app.server.tomcat.manager.user=tomcat
   #app.server.tomcat.manager.password=tomcat
   mkdir -p $CATALINA_HOME/webapps/ROOT/WEB-INF/lib
@@ -513,14 +518,14 @@ install_liferay_sdk() {
   cd $LIFERAY_SDK_LOCATION/liferay-plugins-sdk-6.2/portlets
   rm -rf fginstallation # Remove fginstallation portlet
   cd -
-  
+
   # maven (moved to new 'devtools' step, , function renamed to install_maven)
   #echo "Installing Maven"
   #install_liferay_sdk_maven
 
-  # report to .fgSetup to track success    
+  # report to .fgSetup to track success
   get_ts
-  echo "$TS     lfry_sdk" >> $RUNDIR/.fgSetup
+  echo "$TS     lfry_sdk6" >> $RUNDIR/.fgSetup
 }
 
 
@@ -541,13 +546,264 @@ install_devtools()
   install_ant
   # Install maven if required at setup
   install_maven
-  # report to .fgSetup to track success    
+  # report to .fgSetup to track success
   get_ts
   echo "$TS     devtools" >> $RUNDIR/.fgSetup
 }
 
 # Download and isntall Liferay community ed. 6.2.3 and its SDK (if requested)
+install_liferay6.2() {
+  # The present installation refers to the instructions available at:
+  # https://dev.liferay.com/discover/deployment/-/knowledge_base/6-2/installing-liferay-on-tomcat-7
+  echo "Installing Liferay community ed. v6.2"
+  if [ ! -d $CATALINA_HOME/webapps ]; then
+    echo "FATAL: No webapps destination folder found"
+    return 1
+  fi
+  # Pre-installation steps
+  install_liferay_dependencies6
+  install_liferay_conftomcat6
+  # Install Liferay
+  get_file http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.3%20GA4/liferay-portal-6.2-ce-ga4-20150416163831865.war/download $CATALINA_HOME/webapps liferay-portal-6.2-ce-ga4-20150416163831865.war
+  if [ -d $CATALINA_HOME/webapps/ROOT ]; then
+    echo "Tomcat webabbps/ROOT dir already exists; saving its content before removing it"
+    tar cvfz ROOT_orig.tar.gz  $CATALINA_HOME/webapps/ROOT
+    rm -rf $CATALINA_HOME/webapps/ROOT
+  fi
+  unzip $CATALINA_HOME/webapps/liferay-portal-6.2-ce-ga4-20150416163831865.war -d $CATALINA_HOME/webapps/ROOT
+  rm -f $CATALINA_HOME/webapps/liferay-portal-6.2-ce-ga4-20150416163831865.war
+  # Setup portal-ext.properties
+  # portal-ext.properties location depends from liferay.home value that
+  # currently is located at $FGLOCATION. As a consequence of this, also
+  # the 'deploy' directory will be placed on that directory.
+  echo "jdbc.default.jndi.name=jdbc/LiferayPool"  > $FGLOCATION/portal-ext.properties
+  echo "mail.session.jndi.name=mail/MailSession" >> $FGLOCATION/portal-ext.properties
+  # Optionally install liferay SDK
+  install_liferay_sdk6
+}
+
+# installliferay dependencies for tomcat8
+install_liferay_dependencies7() {
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_deps7")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "Liferay7 dependencies seem to be already installed; skipping this phase"
+    return 0
+  fi
+  # Liferay dependencies
+  mkdir -p $CATALINA_HOME/lib/ext
+  get_file "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip?r=https%3A%2F%2Fwww.liferay.com%2Fdownloads&ts=1465835525&use_mirror=netcologne" "" liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip
+  unzip liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip
+  rm -rf liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip
+  cd liferay-ce-portal-7.0-ga2
+  mkdir -p $CATALINA_HOME/lib/ext/
+  cp tomcat-8.0.32/lib/ext/*.jar $CATALINA_HOME/lib/ext/
+  cp -r osgi $FGLOCATION
+ #cp $CATALINA_HOME/osgi/core/com.liferay.osgi.service.tracker.collections.jar $CATALINA_HOME/lib/ext/
+  cp $CATALINA_HOME/osgi/core/*.jar $CATALINA_HOME/lib/ext/
+  cd -
+  rm -rf liferay-ce-portal-7.0-ga2
+  # report to .fgSetup to track success
+  get_ts
+  echo "$TS     lfry_deps7" >> $RUNDIR/.fgSetup
+}
+
+install_liferay_conftomcat7() {
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_tconf7")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "Liferay7 tomcat configuration seems to be already installed; skipping this phase"
+    return 0
+  fi
+  # Tomcat configuration
+  cat > $CATALINA_HOME/bin/setenv.sh <<EOF
+CATALINA_OPTS="\$CATALINA_OPTS -Dfile.encoding=UTF8 -Djava.net.preferIPv4Stack=true  -Dorg.apache.catalina.loader.WebappClassLoader.ENABLE_CLEAR_REFERENCES=false -Duser.timezone=${TIMEZONE} -Xmx1024m -XX:MaxPermSize=384m"
+EOF
+  chmod +x $CATALINA_HOME/bin/setenv.sh
+  mkdir -p $CATALINA_HOME/conf/Catalina/localhost
+  cat > $CATALINA_HOME/conf/Catalina/localhost/ROOT.xml <<EOF
+<Context path="" crossContext="true">
+
+    <!-- JAAS -->
+
+    <!--<Realm
+        className="org.apache.catalina.realm.JAASRealm"
+        appName="PortalRealm"
+        userClassNames="com.liferay.portal.kernel.security.jaas.PortalPrincipal"
+        roleClassNames="com.liferay.portal.kernel.security.jaas.PortalRole"
+    />-->
+
+    <!--
+    Uncomment the following to disable persistent sessions across reboots.
+    -->
+
+    <!--<Manager pathname="" />-->
+
+    <!--
+    Uncomment the following to not use sessions. See the property
+    "session.disabled" in portal.properties.
+    -->
+
+    <!--<Manager className="com.liferay.support.tomcat.session.SessionLessManagerBase" />-->
+
+    <!-- GridEngine connection pool defined for Liferay -->
+    <Resource
+        name="jdbc/LiferayPool"
+        auth="Container"
+        type="javax.sql.DataSource"
+        driverClassName="com.mysql.jdbc.Driver"
+        url="jdbc:mysql://${MYSQL_HOST}/${MYSQL_DBNM}?useUnicode=true&amp;characterEncoding=UTF-8"
+        username="${MYSQL_USER}"
+        password="${MYSQL_PASS}"
+        maxTotal="100"
+        maxIdle="30"
+        maxWaitMillis="10000"
+    />
+
+    <Resource
+        name="mail/MailSession"
+        auth="Container"
+        type="javax.mail.Session"
+        mail.pop3.host="pop.gmail.com"
+        mail.pop3.port="110"
+        mail.smtp.host="smtp.gmail.com"
+        mail.smtp.port="465"
+        mail.smtp.user="user"
+        mail.smtp.password="password"
+        mail.smtp.auth="true"
+        mail.smtp.starttls.enable="true"
+        mail.smtp.socketFactory.class="javax.net.ssl.SSLSocketFactory"
+        mail.imap.host="imap.gmail.com"
+        mail.imap.port="993"
+        mail.transport.protocol="smtp"
+        mail.store.protocol="imap"
+    />
+</Context>
+EOF
+#  # Avoid waring issue inside logs
+#  cp $CATALINA_HOME/conf/context.xml $CATALINA_HOME/conf/context.xml_orig
+#  NUMLINES=$(cat $CATALINA_HOME/conf/context.xml_orig | wc -l)
+#  cat $CATALINA_HOME/conf/context.xml_orig | head -n $((NUMLINES-1)) > $CATALINA_HOME/conf/context.xml
+#  cat >> $CATALINA_HOME/conf/context.xml <<EOF
+#<Resources
+#   cachingAllowed="true"
+#   cacheMaxSize="100000"
+#/>
+#</Context>
+#EOF
+#  rm -f $CATALINA_HOME/conf/context.xml_orig
+
+  # Adjust catalina.properties
+  cd $CATALINA_HOME/conf
+  mv catalina.properties catalina.properties_orig
+  CATPROPLN=$(cat catalina.properties_orig | grep -n common.loader | awk -F':' '{ print $1}')
+  cat catalina.properties_orig | head -n $((CATPROPLN-1)) > catalina.properties
+  echo "common.loader=\"\${catalina.base}/lib\",\"\${catalina.base}/lib/*.jar\",\"\${catalina.home}/lib\",\"\${catalina.home}/lib/*.jar\",\"\${catalina.home}/lib/ext\",\"\${catalina.home}/lib/ext/*.jar\"" >> catalina.properties
+  CATPROPSZ=$(cat catalina.properties_orig | wc -l)
+  cat catalina.properties_orig | tail -n $((CATPROPSZ-CATPROPLN)) >> catalina.properties
+  rm -f catalina.properties_orig
+
+  # Change catalina.policy
+  cp $CATALINA_HOME/conf/catalina.policy $CATALINA_HOME/conf/catalina.policy_tomcat8
+  cat > $CATALINA_HOME/conf/catalina.policy <<EOF
+grant {
+    permission java.security.AllPermission;
+};
+EOF
+  cp $CATALINA_HOME/conf/server.xml $CATALINA_HOME/conf/server.xml_tomcat8
+  sed -i -e "s/port=\"8080\"/port=\"8080\"\ URIEncoding=\"UTF-8\"\ /" $CATALINA_HOME/conf/server.xml
+
+  # Give execution rights to bin/*.sh files
+  chmod a+x $CATALINA_HOME/bin/*.sh
+  cd -
+  # report to .fgSetup to track success
+  get_ts
+  echo "$TS     lfry_tconf7" >> $RUNDIR/.fgSetup
+}
+
+install_liferay_sdk7() {
+  if [ $LIFERAY_SDK_ON -eq 0 ]; then
+    echo "Skipping LIFERAY SDK"
+    return 0
+  fi
+  if [ -e $RUNDIR/.fgSetup ]; then
+    SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "lfry_sdk7")
+  else
+    SETUPCHK=""
+  fi
+  if [ "${SETUPCHK}" != "" ]; then
+    echo "Liferay SDK seems to be already installed; skipping this phase"
+    export PATH=$PATH:$HOME/jpm/bin
+    return 0
+  fi
+  echo "Installing Liferay SDK v7 (Blade CLI)"
+  # Install JPM
+  get_file https://github.com/jpm4j/jpm4j.installers/raw/master/dist/biz.aQute.jpm.run.jar "" jpm4j.jar
+  java -jar jpm4j.jar -u init
+  export PATH=$PATH:$HOME/jpm/bin
+  echo "export PATH=\$PATH:\$$HOME/jpm/bin" >> $FGENV
+  get_file https://liferay-test-01.ci.cloudbees.com/job/liferay-blade-cli/lastSuccessfulBuild/artifact/com.liferay.blade.cli/generated/com.liferay.blade.cli.jar
+  jpm install -fl com.liferay.blade.cli.jar
+  BLADECHK=$(blade version)
+  if [ "$BLADECHK" != "" ]; then
+    echo "Blade CLI installed successfully ("$BLADECHK")"
+    blade update
+  else
+    echo "Blade CLI unsuccessfully installed"
+  fi
+  # report to .fgSetup to track success
+  get_ts
+  echo "$TS     lfry_sdk7" >> $RUNDIR/.fgSetup
+}
+
+install_liferay7() {
+  # The present installation refers to the instruction available at:
+  # https://dev.liferay.com/discover/deployment/-/knowledge_base/7-0/installing-liferay-on-tomcat-8
+  echo "Installing Liferay community ed. v7.0"
+  if [ ! -d $CATALINA_HOME/webapps ]; then
+    echo "FATAL: No webapps destination folder found"
+    return 1
+  fi
+  # Check MySQL DB version
+  MYSQLVER=$(mysql --version | awk '{ print $5 }' | sed s/[.]//g | sed s/[,]//g)
+  if [ MYSQLVER -lt 564 ]; then
+    echo "FATAL: MySQL version must be at least 5.6.4 version"
+    return 1
+  fi
+  
+  # Pre-installation steps
+  install_liferay_dependencies7
+  install_liferay_conftomcat7
+
+  # Install Liferay7
+  get_file "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-7.0-ga2-20160610113014153.war?r=https%3A%2F%2Fsourceforge.net%2Fprojects%2Flportal%2Ffiles%2FLiferay%2520Portal%2F7.0.1%2520GA2%2F&ts=1465894436&use_mirror=netcologne" "$CATALINA_HOME/webapps/" liferay-ce-portal-7.0-ga2-20160610113014153.war
+  if [ -d $CATALINA_HOME/webapps/ROOT ]; then
+    echo "Tomcat webabbps/ROOT dir already exists; saving its content before removing it"
+    tar cvfz ROOT_orig.tar.gz  $CATALINA_HOME/webapps/ROOT
+    rm -rf $CATALINA_HOME/webapps/ROOT
+  fi
+  unzip $CATALINA_HOME/webapps/liferay-ce-portal-7.0-ga2-20160610113014153.war -d $CATALINA_HOME/webapps/ROOT
+  rm -f $CATALINA_HOME/webapps/liferay-ce-portal-7.0-ga2-20160610113014153.war
+  # Setup portal-ext.properties
+  # portal-ext.properties location depends from liferay.home value that
+  # currently is located at $FGLOCATION. As a consequence of this, also
+  # the 'deploy' directory will be placed on that directory.
+  echo "jdbc.default.jndi.name=jdbc/LiferayPool"  > $FGLOCATION/portal-ext.properties
+  echo "mail.session.jndi.name=mail/MailSession" >> $FGLOCATION/portal-ext.properties
+  # Optionally install liferay SDK
+  install_liferay_sdk7
+}
+
+
+# Installing liferay
 install_liferay() {
+  echo "Installing Liferay ..."
   if [ $SKIP_LIFERAY -ne 0 ]; then
     echo "Skipping Liferay installation;"
     return 0
@@ -561,33 +817,18 @@ install_liferay() {
     echo "Liferay seems to be already installed; skipping this phase"
     return 0
   fi
-  # The present installation refers to the instructions available at:
-  # https://dev.liferay.com/discover/deployment/-/knowledge_base/6-2/installing-liferay-on-tomcat-7
-  echo "Installing Liferay community ed. v6.2"
-  if [ ! -d $CATALINA_HOME/webapps ]; then
-    echo "FATAL: No webapps destination folder found"
-    return 1
-  fi
-  # Pre-installation steps
-  install_liferay_dependencies
-  install_liferay_conftomcat
-  # Install Liferay
-  get_file http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.3%20GA4/liferay-portal-6.2-ce-ga4-20150416163831865.war/download $CATALINA_HOME/webapps liferay-portal-6.2-ce-ga4-20150416163831865.war
-  if [ -d $CATALINA_HOME/webapps/ROOT ]; then
-    echo "Tomcat webabbps/ROOT dir already exists; saving its content before removing it"
-    tar cvfz ROOT_orig.tar.gz  $CATALINA_HOME/webapps/ROOT
-    rm -rf $CATALINA_HOME/webapps/ROOT
-  fi
-  unzip $CATALINA_HOME/webapps/liferay-portal-6.2-ce-ga4-20150416163831865.war -d $CATALINA_HOME/webapps/ROOT
-  rm -f $CATALINA_HOME/webapps/liferay-portal-6.2-ce-ga4-20150416163831865.war
-  # Setup portal-ext.properties
-  # portal-ext.properties location depends from liferay.home value that 
-  # currently is located at $FGLOCATION. As a consequence of this, also
-  # the 'deploy' directory will be placed on that directory.
-  echo "jdbc.default.jndi.name=jdbc/LiferayPool"  > $FGLOCATION/portal-ext.properties
-  echo "mail.session.jndi.name=mail/MailSession" >> $FGLOCATION/portal-ext.properties
-  # Optionally install liferay SDK
-  install_liferay_sdk
+  # Install LiferayCommunity edition 6.2
+  case $LIFERAY_VER in
+    6)
+      install_liferay6.2
+      ;;
+    7)
+      install_liferay7
+      ;;
+    *)
+      echo "Unrecognized Liferay version '"$LIFERAY_VER"'"
+      return 0
+  esac
   # report to .fgSetup to track success
   get_ts
   echo "$TS   liferay" >> $RUNDIR/.fgSetup
@@ -606,9 +847,9 @@ killjava() {
     if [ "\${1}" = "-f" ]; then
       KILLARG="-9"
     fi
-    PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}') 
-    while [ "\${PROC}" != "" ]; do  
-        kill \$KILLARG \$PROC;         
+    PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}')
+    while [ "\${PROC}" != "" ]; do
+        kill \$KILLARG \$PROC;
         sleep 1
         PROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}')
     done
@@ -647,7 +888,7 @@ asdb() {
   fi
   eval "mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password \$ASDB_OPTS fgapiserver \$cmd"
 }
-utdb() { 
+utdb() {
   cmd=\$(echo "\$*" | sed s/\$0//)
     if [ "\$cmd" != "" ]; then
     cmd="-e \\"\$cmd\\""
@@ -666,8 +907,8 @@ EOF
   # DEB needs a further entry in profile since .bash_profile overrides .profile
   if [ "${APTGET}" != "" ]; then
     echo ". .profile" >> $HOME/.bash_profile
-  fi 
-  
+  fi
+
   # Final message
   echo "Script installation accomplished"
   echo "You can start now tomcath with: \$CATALINA_HOME/bin/startup.sh"
@@ -677,7 +918,7 @@ EOF
   echo "         You can watch anytime tomcat server activity with:"
   echo "         tail -f \$CATALINA_HOME/logs/catalina.out"
   echo ""
-  # report to .fgSetup to track success  
+  # report to .fgSetup to track success
   get_ts
   echo "$TS fgend" >> $RUNDIR/.fgSetup
   return 0

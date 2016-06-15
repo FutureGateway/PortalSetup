@@ -75,8 +75,10 @@ sudo apt-get -y update
 PKGS=\"wget \
 openssh-client \
 openssh-server \
-mysql-client \
-mysql-server \
+mysql-server-5.6 \
+mysql-server-core-5.6 \
+mysql-client-5.6 \
+mysql-client-core-5.6 \
 openjdk-7-jdk \
 build-essential \
 mlocate \
@@ -138,6 +140,7 @@ FGENV=\$FGLOCATION/setenv.sh                # FutureGateway environment variable
 TOMCATUSR=${TOMCATUSR}                              # TOMCAT username
 TOMCATPAS=${TOMCATPAS}                              # TOMCAT password
 SKIP_LIFERAY=0                                      # 0 - Installs Liferay
+LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
