@@ -299,14 +299,16 @@ $SETUPFGAPIERVER_DB < fgapiserver_db.sql
 "
 
 #5 APIServerDaemon
+APISERVERDAEMON_GIT="https://github.com/FutureGateway/APIServerDaemon.git"
+TOSCAADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-tosca.git"
+ROCCIADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-rocci.git"
 cat > setup_APIServerDaemon.sh <<EOF
 cd \$FGLOCATION
-git clone https://github.com/FutureGateway/APIServerDaemon.git
+git clone $APISERVERDAEMON_GIT
+git clone $ROCCIADAPTOR_GIT
+git clone $TOSCAADAPTOR_GIT
 # Prepare lib dir
 tar xvfz \$HOME/APIServerDaemon_lib.tar.gz -C \$FGLOCATION/APIServerDaemon/web/WEB-INF/
-# Copy adaptors to JSAGA folder
-cp \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-tosca*.jar \$FGLOCATION/jsaga-1.1.2/lib/
-cp \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-rocci*.jar \$FGLOCATION/jsaga-1.1.2/lib/
 # Default JSON library works for java-8; in java-7 another jar is necessary
 JVER=\$(java -version 2>&1 | head -n 1 | awk '{ print \$3 }' | sed s/\"//g | awk '{ print substr(\$1,1,3) }')
 if [ "\${JVER}" = "1.7" ]; then
@@ -314,6 +316,22 @@ if [ "\${JVER}" = "1.7" ]; then
   mv \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20150729.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20150729.jar_disabled
   wget http://central.maven.org/maven2/org/json/json/20140107/json-20140107.jar -O \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20140107.jar  
 fi
+# Compile rocci adaptor
+rm -rf \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-rocci*.jar
+rm -rf \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-tosca*.jar
+cd jsaga-adaptor-rocci
+cd \$FGLOCATION/jsaga-adaptor-rocci
+ant all
+cp \$FGLOCATION/jsaga-adaptor-rocci/dist/jsaga-adaptor-rocci.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib
+cp \$FGLOCATION/jsaga-adaptor-rocci/dist/jsaga-adaptor-rocci.jar \$FGLOCATION/jsaga-1.1.2/lib
+# Compile tosca adaptor
+cd \$FGLOCATION/jsaga-adaptor-tosca
+mv \$FGLOCATION/jsaga-adaptor-tosca/build.xml \$FGLOCATION/jsaga-adaptor-tosca/build.xml_nb
+mv \$FGLOCATION/jsaga-adaptor-tosca/build.xml_disabled \$FGLOCATION/jsaga-adaptor-tosca/build.xml
+ant all
+cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib
+cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/jsaga-1.1.2/lib
+# Compile APIServerDaemon
 cd \$FGLOCATION/APIServerDaemon
 ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
