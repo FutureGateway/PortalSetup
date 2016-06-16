@@ -772,7 +772,7 @@ install_liferay7() {
   fi
   # Check MySQL DB version
   MYSQLVER=$(mysql --version | awk '{ print $5 }' | sed s/[.]//g | sed s/[,]//g)
-  if [ MYSQLVER -lt 564 ]; then
+  if [ $MYSQLVER -lt 564 ]; then
     echo "FATAL: MySQL version must be at least 5.6.4 version"
     return 1
   fi

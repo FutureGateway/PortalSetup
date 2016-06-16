@@ -263,7 +263,7 @@ if [ "${1}" != "" ]; then
   fi
 else
   preinstall_js        && \
-  install_ultdcepolicy && \  
+  install_ultdcepolicy && \
   install_js           && \
   postinstall_js
 fi
