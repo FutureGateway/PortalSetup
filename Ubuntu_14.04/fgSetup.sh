@@ -87,6 +87,7 @@ curl \
 ruby-dev \
 apache2 \
 libapache2-mod-wsgi \
+python-dev \
 python-pip \
 python-Flask \
 python-flask-login \
