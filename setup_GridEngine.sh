@@ -235,7 +235,7 @@ install_utdb() {
     fi
   fi
   # Now test connection
-  $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} -s -N -e "select now()" > /dev/null
+  $MYSQL -u${GEMYSQL_USER} -p${GEMYSQL_PASS} ${GEMYSQL_DBNM} -s -N -e "select now()" > /dev/null
   RES=$?
   if [ $RES -ne 0 ]; then
     echo "FATAL: Not connected to the GridEngine' users tracking database"
