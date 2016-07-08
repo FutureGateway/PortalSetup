@@ -15,7 +15,7 @@ In order to install the FutureGateway, just execute as root user:
 # adduser --disabled-password --gecos "" futuregateway 
 # mkdir -p /home/futuregateway/.ssh
 # chown futuregateway:futuregateway /home/futuregateway/.ssh
-# wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntui_14.04/fgSetup.sh
+# wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
 # chmod +x fgSetup.sh
 # cat /dev/zero | ssh-keygen -q -N ""
 # cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
