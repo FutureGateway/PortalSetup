@@ -265,8 +265,8 @@ EOF
 scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
-wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
+[ -f FGRepo.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
+[ -f APIServerDaemon_lib.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh -O setup_FGPortal.sh
 chmod +x *.sh
 ./setup_FGPortal.sh
