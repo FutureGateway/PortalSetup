@@ -5,6 +5,9 @@
 # 11.03.2016 - riccardo.bruno@ct.infn.it
 #
 
+# Load common setting and setup functions
+. setup_config.sh common
+. setup_config.sh functions
 
 #
 # This script provides the init script to execute FutureGateway service at startup
@@ -174,6 +177,15 @@ if [ "$APTGET" != "" ]; then
   update-rc.d futuregateway defaults
 else
   chkconfig futuregateway on
+fi
+
+#
+# Ubuntu 14.04 bug, screen section does not start at boot
+#
+OSREL=$(lsb_release -r | awk '{ print $2}')
+if [ "$OSREL" = "14.04" ]; then
+  # To workaround this, place the futuregateway service execution inside rc.local
+  replace_line "/etc/rc.local" "exit 0" "/etc/init.d/futuregateway start\nexit 0" "orig"
 fi
 
 #
