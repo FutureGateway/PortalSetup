@@ -8,6 +8,44 @@
 # values defined inside setup settings
 
 #
+# Show environment variables
+#
+# $1 - Variable set name
+# $2 - Variable set
+# $3 - Indent value; use: 2+max_var_length
+#
+show_vars() {
+  if [ "$1" = "" -o "$2" = "" ]; then
+    echo "No variables available to be shown"
+    return 1
+  fi
+  echo "-----------------------------------------"
+  echo " setup config $1 values"
+  echo "-----------------------------------------"
+  SV_INDENT="$3" 
+  for var in $2; do
+    if [ "$SV_INDENT" != "" ]; then
+    VARLEN=$(echo $var | wc -c | xargs echo)
+      SPCS=$((SV_INDENT-VARLEN-1))
+    else
+      SPCS=""
+    fi
+    SV_INDENTSPC=""
+    if [ $SPCS -gt 0 ]; then
+      for i in $(seq 1 $SPCS); do
+        SV_INDENTSPC=$SV_INDENTSPC"."
+      done 
+    fi
+    printf "$var$SV_INDENTSPC: '"
+    X=$(eval printf \$$var 2>/dev/null)
+    if [ "$X" != "" ]; then
+      printf $X
+    fi  
+    echo "'"
+  done
+}
+
+#
 # Setup configuration variables
 #
 # Uncomment and change one ot these values to override default settings
@@ -23,6 +61,18 @@ load_common() {
   FGREPO=$FGHOME/FGRepo                       # Files could be cached into this repo directory
   FGLOCATION=$FGHOME/FutureGateway            # Location of the FutureGateway installation
   FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variables
+}
+
+#
+# Show common values
+#
+show_common() {
+  ENV_VARS="FGUSER\
+            FGHOME\
+            FGREPO\
+            FGLOCATION\
+            FGENV"
+  show_vars "common" "$ENV_VARS" 12
 }
 
 #
@@ -51,6 +101,30 @@ load_fgportal() {
 }
 
 #
+# Show fgportal values
+#
+show_fgportal() {
+  ENV_VARS="TOMCATUSR\
+            TOMCATPAS\
+            SKIP_LIFERAY\
+            LIFERAY_VER\
+            LIFERAY_SDK_ON\
+            LIFERAY_SDK_LOCATION\
+            MAVEN_ON\
+            STARTUP_SYSTEM\
+            TIMEZONE\
+            SETUPDB\
+            MYSQL_HOST\
+            MYSQL_PORT\
+            MYSQL_USER\
+            MYSQL_PASS\
+            MYSQL_DBNM\
+            MYSQL_ROOT\
+            MYSQL_RPAS"
+  show_vars "fgportal" "$ENV_VARS" 22
+}
+
+#
 # setup_JSAGA.sh
 #
 load_jsaga() {
@@ -60,11 +134,28 @@ load_jsaga() {
 }
 
 #
+# Show jsaga values
+#
+show_jsaga() {
+  ENV_VARS="JSAGA_LOCATION\
+            FGENV"
+  show_vars "jsaga" "$ENV_VARS" 17
+}
+
+#
 # setup_OCCI.sh
 #
 load_occi() {
   LOAD_FUNCTION=$LOAD_FUNCTION" occi"
   #USEFEDCLOUD=1                                     # Set to 1 for FedCloud setup script
+}
+
+#
+# Show occi values
+#
+show_occi() {
+  ENV_VARS="USEFEDCLOUD"
+  show_vars "occi" "$ENV_VARS" 13
 }
 
 #
@@ -83,6 +174,24 @@ load_gridengine() {
   #GEMYSQL_USER=tracking_user
   #GEMYSQL_PASS=usertracking
   #GEMYSQL_DBNM=userstracking
+}
+
+#
+# Show gridengine values
+#
+show_gridengine() {
+  ENV_VARS="GEDIR\
+            GELOG\
+            GELIB\
+            SETUPUTDB\
+            SETUPGRIDENGINEDAEMON\
+            RUNDIR\
+            GEMYSQL_HOST\
+            GEMYSQL_PORT\
+            GEMYSQL_USER\
+            GEMYSQL_PASS\
+            GEMYSQL_DBNM"
+  show_vars "gridengine" "$ENV_VARS" 23
 }
 
 #
