@@ -68,7 +68,7 @@ show_vars() {
 load_common() {
   LOAD_FUNCTION=$LOAD_FUNCTION" common"
   FGUSER=$(whoami)                            # User owning FutureGateway files
-  FGHOME=$HOME/                               # This script could be executed as root; specify FG home here
+  FGHOME=$HOME                                # This script could be executed as root; specify FG home here
   FGREPO=$FGHOME/FGRepo                       # Files could be cached into this repo directory
   FGLOCATION=$FGHOME/FutureGateway            # Location of the FutureGateway installation
   FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variables
