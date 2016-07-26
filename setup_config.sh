@@ -12,7 +12,8 @@
 #
 # $1 - Variable set name
 # $2 - Variable set
-# $3 - Indent value; use: 2+max_var_length
+# $3 - Non zero or empty to indent values (optional)
+# $4 - Specify indentation char (optional)
 #
 show_vars() {
   if [ "$1" = "" -o "$2" = "" ]; then
@@ -22,7 +23,17 @@ show_vars() {
   echo "-----------------------------------------"
   echo " setup config $1 values"
   echo "-----------------------------------------"
-  SV_INDENT="$3" 
+  SV_INDENT=""$3 
+  if [ "$SV_INDENT" != "" -a $((1*SV_INDENT)) -gt 0 ]; then 
+    MAXLEN=$(for var in $ENV_VARS; do
+               echo $var | wc -c
+             done | awk 'BEGIN{MAX=0} { if($1>MAX) MAX=$1 } END{ print MAX}')
+    SV_INDENT=$((MAXLEN+1))
+  fi 
+  SV_INDCHR=""$4
+  if [ "$SV_INDCHR" = "" ]; then
+    SV_INDCHR=" "
+  fi
   for var in $2; do
     if [ "$SV_INDENT" != "" ]; then
     VARLEN=$(echo $var | wc -c | xargs echo)
@@ -33,7 +44,7 @@ show_vars() {
     SV_INDENTSPC=""
     if [ $SPCS -gt 0 ]; then
       for i in $(seq 1 $SPCS); do
-        SV_INDENTSPC=$SV_INDENTSPC"."
+        SV_INDENTSPC=$SV_INDENTSPC$SV_INDCHR
       done 
     fi
     printf "$var$SV_INDENTSPC: '"
@@ -72,7 +83,7 @@ show_common() {
             FGREPO\
             FGLOCATION\
             FGENV"
-  show_vars "common" "$ENV_VARS" 12
+  show_vars "common" "$ENV_VARS" 1 "."
 }
 
 #
@@ -121,7 +132,7 @@ show_fgportal() {
             MYSQL_DBNM\
             MYSQL_ROOT\
             MYSQL_RPAS"
-  show_vars "fgportal" "$ENV_VARS" 22
+  show_vars "fgportal" "$ENV_VARS" 1 "."
 }
 
 #
@@ -139,7 +150,7 @@ load_jsaga() {
 show_jsaga() {
   ENV_VARS="JSAGA_LOCATION\
             FGENV"
-  show_vars "jsaga" "$ENV_VARS" 17
+  show_vars "jsaga" "$ENV_VARS" 1 "."
 }
 
 #
@@ -155,7 +166,7 @@ load_occi() {
 #
 show_occi() {
   ENV_VARS="USEFEDCLOUD"
-  show_vars "occi" "$ENV_VARS" 13
+  show_vars "occi" "$ENV_VARS" 1 "."
 }
 
 #
@@ -191,7 +202,7 @@ show_gridengine() {
             GEMYSQL_USER\
             GEMYSQL_PASS\
             GEMYSQL_DBNM"
-  show_vars "gridengine" "$ENV_VARS" 23
+  show_vars "gridengine" "$ENV_VARS" 1 "."
 }
 
 #
