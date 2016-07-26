@@ -35,15 +35,15 @@ MYSQL_RPAS=
 
 # Install preliminary FutureGateway stuff
 preinstall_fg() {
-  if [ -f $FGENV ]; then
-    echo "WARNING: Setup file registry already exists, you are executing again the setup script"
-    printf "Are you sure you want to execute setup again (y/N)? "
-    read ANSWER
-    if [ "${ANSWER}" != "y" ]; then
-      echo "Aborted"
-      return 1
-    fi
-  fi
+  #if [ -f $FGENV ]; then
+  #  echo "WARNING: Setup file registry already exists, you are executing again the setup script"
+  #  printf "Are you sure you want to execute setup again (y/N)? "
+  #  read ANSWER
+  #  if [ "${ANSWER}" != "y" ]; then
+  #    echo "Aborted"
+  #    return 1
+  #  fi
+  #fi
   echo "Setup script for the FutureGateway portal"
   echo "-----------------------------------------"
   echo "The system will be installed in: $FGLOCATION"
