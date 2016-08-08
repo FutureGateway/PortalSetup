@@ -5,6 +5,8 @@
 cd /root
 IP=$(ifconfig | grep  -A 2 eth0 | grep inet\ addr | awk -F':' '{ print $2 }' | awk '{ print $1 }' | xargs echo)
 echo "$IP    futuregateway" >> /etc/hosts
+echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 apt-get update -y
 apt-get install -y wget openssh-client openssh-server 
 adduser --disabled-password --gecos "" futuregateway

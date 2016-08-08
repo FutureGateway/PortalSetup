@@ -9,11 +9,13 @@ In order to install the FutureGateway, just execute as root user:
 
 ```sh
 # IP=$(ifconfig | grep  -A 2 eth0 | grep inet\ addr | awk -F':' '{ print $2 }' | awk '{ print $1 }' | xargs echo)
+# echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+# echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 # echo "$IP    futuregateway" >> /etc/hosts
 # adduser --disabled-password --gecos "" futuregateway 
 # mkdir -p /home/futuregateway/.ssh
 # chown futuregateway:futuregateway /home/futuregateway/.ssh
-# wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntui_14.04/fgSetup.sh
+# wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
 # chmod +x fgSetup.sh
 # cat /dev/zero | ssh-keygen -q -N ""
 # cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys

@@ -5,6 +5,8 @@
 # 17.09.2015 - riccardo.bruno@ct.infn.it
 #
 
+# Load commons setup environment variables
+. setup_config.sh common
 
 #
 # Setup environment variables (default values)
@@ -286,14 +288,14 @@ install_vomses() {
     return 0
   fi
   echo "Installing additional VOMSES ..."
-  # indigo VOMS
-  echo "\"indigo\" \"voms01.ncg.ingrid.pt\" \"40100\" \"/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt\" \"indigo\"" > /etc/vomses/indigo-voms01.ncg.ingrid.pt
-  mkdir -p /etc/grid-security/vomsdir/indigo
-  cat > /etc/grid-security/vomsdir/indigo/voms01.ncg.ingrid.pt.lsc <<EOF
+  # VO: vo.indigo-datacloud.eu
+  echo "\"vo.indigo-datacloud.eu\" \"voms01.ncg.ingrid.pt\" \"40101\" \"/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt\" \"vo.indigo-datacloud.eu\"" > /etc/vomses/indigo-voms01.ncg.ingrid.pt
+  mkdir -p /etc/grid-security/vomsdir/vo.indigo-datacloud.eu
+  cat > /etc/grid-security/vomsdir/vo.indigo-datacloud.eu/voms01.ncg.ingrid.pt.lsc <<EOF
 /C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt
 /C=PT/O=LIPCA/CN=LIP Certification Authority
 EOF
-  # fedcloud.egi.eu
+  # VO: fedcloud.egi.eu
   echo "\"fedcloud.egi.eu\" \"voms1.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms1.grid.cesnet.cz
   echo "\"fedcloud.egi.eu\" \"voms2.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms2.grid.cesnet.cz
   mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu

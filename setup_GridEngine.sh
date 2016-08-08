@@ -5,15 +5,12 @@
 # 17.09.2015 - riccardo.bruno@ct.infn.it
 #
 
+# Load commons setup environment variables
+. setup_config.sh common
 
 #
 # Setup environment variables (default values)
 #
-FGUSER=Macbook                              # User owning FutureGateway files
-FGHOME=$HOME/Documents                      # This script could be executed as root; specify FG home here
-FGREPO=$FGHOME/FGRepo                       # Files could be cached into this repo directory
-FGLOCATION=$FGHOME/FutureGateway            # Location of the FutureGateway installation
-FGENV=$FGLOCATION/setenv.sh                 # FutureGateway environment variables
 GEDIR=$FGLOCATION/GridEngine
 GELOG=$GEDIR/log
 GELIB=$GEDIR/lib
@@ -238,7 +235,7 @@ install_utdb() {
     fi
   fi
   # Now test connection
-  $MYSQL -u${MYSQL_USER} -p${MYSQL_PASS} ${MYSQL_DBNM} -s -N -e "select now()" > /dev/null
+  $MYSQL -u${GEMYSQL_USER} -p${GEMYSQL_PASS} ${GEMYSQL_DBNM} -s -N -e "select now()" > /dev/null
   RES=$?
   if [ $RES -ne 0 ]; then
     echo "FATAL: Not connected to the GridEngine' users tracking database"

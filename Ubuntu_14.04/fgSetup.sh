@@ -49,7 +49,7 @@ echo "SSHPORT  : '"$SSHPORT"'"
 
 SSHKOPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 TOMCATUSR="tomcat"
-TOMCATPAS="tomcat"
+TOMCATPAS=$(openssl rand -hex 4)
 MYSQL_RPAS=
 
 # 1) Establish secure connection with the fg VM ssh-ing with: <VMUSER>@<VMIP>
@@ -75,8 +75,10 @@ sudo apt-get -y update
 PKGS=\"wget \
 openssh-client \
 openssh-server \
-mysql-client \
-mysql-server \
+mysql-server-5.6 \
+mysql-server-core-5.6 \
+mysql-client-5.6 \
+mysql-client-core-5.6 \
 openjdk-7-jdk \
 build-essential \
 mlocate \
@@ -85,15 +87,21 @@ curl \
 ruby-dev \
 apache2 \
 libapache2-mod-wsgi \
+python-dev \
+python-pip \
 python-Flask \
+python-flask-login \
+python-crypto \
 python-MySQLdb \
 git \
 ldap-utils \
 openvpn \
-screen\"
+screen \
+jq\"
 for pkg in \$PKGS; do
   sudo apt-get -y install \$pkg 
 done
+sudo pip install --upgrade flask-login
 sudo service ssh restart
 sudo service mysql restart
 "
@@ -133,6 +141,7 @@ FGENV=\$FGLOCATION/setenv.sh                # FutureGateway environment variable
 TOMCATUSR=${TOMCATUSR}                              # TOMCAT username
 TOMCATPAS=${TOMCATPAS}                              # TOMCAT password
 SKIP_LIFERAY=0                                      # 0 - Installs Liferay
+LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
@@ -256,8 +265,8 @@ EOF
 scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
 rm setup_config.sh
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
-wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
+[ -f FGRepo.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
+[ -f APIServerDaemon_lib.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
 wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh -O setup_FGPortal.sh
 chmod +x *.sh
 ./setup_FGPortal.sh
@@ -291,9 +300,14 @@ $SETUPFGAPIERVER_DB < fgapiserver_db.sql
 "
 
 #5 APIServerDaemon
+APISERVERDAEMON_GIT="https://github.com/FutureGateway/APIServerDaemon.git"
+TOSCAADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-tosca.git"
+ROCCIADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-rocci.git"
 cat > setup_APIServerDaemon.sh <<EOF
 cd \$FGLOCATION
-git clone https://github.com/FutureGateway/APIServerDaemon.git
+git clone $APISERVERDAEMON_GIT
+git clone $ROCCIADAPTOR_GIT
+git clone $TOSCAADAPTOR_GIT
 # Prepare lib dir
 tar xvfz \$HOME/APIServerDaemon_lib.tar.gz -C \$FGLOCATION/APIServerDaemon/web/WEB-INF/
 # Default JSON library works for java-8; in java-7 another jar is necessary
@@ -303,6 +317,22 @@ if [ "\${JVER}" = "1.7" ]; then
   mv \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20150729.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20150729.jar_disabled
   wget http://central.maven.org/maven2/org/json/json/20140107/json-20140107.jar -O \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/json-20140107.jar  
 fi
+# Compile rocci adaptor
+rm -rf \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-rocci*.jar
+rm -rf \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib/jsaga-adaptor-tosca*.jar
+cd jsaga-adaptor-rocci
+cd \$FGLOCATION/jsaga-adaptor-rocci
+ant all
+cp \$FGLOCATION/jsaga-adaptor-rocci/dist/jsaga-adaptor-rocci.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib
+cp \$FGLOCATION/jsaga-adaptor-rocci/dist/jsaga-adaptor-rocci.jar \$FGLOCATION/jsaga-1.1.2/lib
+# Compile tosca adaptor
+cd \$FGLOCATION/jsaga-adaptor-tosca
+mv \$FGLOCATION/jsaga-adaptor-tosca/build.xml \$FGLOCATION/jsaga-adaptor-tosca/build.xml_nb
+mv \$FGLOCATION/jsaga-adaptor-tosca/build.xml_disabled \$FGLOCATION/jsaga-adaptor-tosca/build.xml
+ant all
+cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/APIServerDaemon/web/WEB-INF/lib
+cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/jsaga-1.1.2/lib
+# Compile APIServerDaemon
 cd \$FGLOCATION/APIServerDaemon
 ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
@@ -327,7 +357,7 @@ find  /etc/ssh/ -name 'ssh_host_*' | grep -v disabled | grep -v rsa | grep -v \_
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
 sudo adduser --disabled-password --gecos "" jobtest
-RANDPASS=\$(date +%s | md5sum | base64 | head -c 12 ; echo)
+RANDPASS=\$(openssl rand -base64 32 | head -c 12)
 sudo usermod --password \$(echo "\$RANDPASS" | openssl passwd -1 -stdin) jobtest
 SQLCMD="update infrastructure_parameter set pvalue='\$RANDPASS' where infra_id=1 and pname='password'";
 mysql -h localhost -P 3306 -u fgapiserver -pfgapiserver_password fgapiserver -e "\$SQLCMD"
