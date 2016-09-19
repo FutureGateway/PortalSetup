@@ -288,16 +288,17 @@ install_vomses() {
     return 0
   fi
   echo "Installing additional VOMSES ..."
+  [ -d /etc/vomses/ ] || mkdir -p /etc/vomses/
   # VO: vo.indigo-datacloud.eu
-  echo "\"vo.indigo-datacloud.eu\" \"voms01.ncg.ingrid.pt\" \"40101\" \"/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt\" \"vo.indigo-datacloud.eu\"" > /etc/vomses/indigo-voms01.ncg.ingrid.pt
+  sudo su - -c 'echo "\"vo.indigo-datacloud.eu\" \"voms01.ncg.ingrid.pt\" \"40101\" \"/C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt\" \"vo.indigo-datacloud.eu\"" > /etc/vomses/indigo-voms01.ncg.ingrid.pt'
   mkdir -p /etc/grid-security/vomsdir/vo.indigo-datacloud.eu
   cat > /etc/grid-security/vomsdir/vo.indigo-datacloud.eu/voms01.ncg.ingrid.pt.lsc <<EOF
 /C=PT/O=LIPCA/O=LIP/OU=Lisboa/CN=voms01.ncg.ingrid.pt
 /C=PT/O=LIPCA/CN=LIP Certification Authority
 EOF
   # VO: fedcloud.egi.eu
-  echo "\"fedcloud.egi.eu\" \"voms1.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms1.grid.cesnet.cz
-  echo "\"fedcloud.egi.eu\" \"voms2.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms2.grid.cesnet.cz
+  sudo su - -c 'echo "\"fedcloud.egi.eu\" \"voms1.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms1.grid.cesnet.cz'
+  sudo su - -c 'echo "\"fedcloud.egi.eu\" \"voms2.grid.cesnet.cz\" \"15002\" \"/DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms2.grid.cesnet.cz\" \"fedcloud.egi.eu\"" > /etc/vomses/fedcloud.egi.eu-voms2.grid.cesnet.cz'
   mkdir -p /etc/grid-security/vomsdir/fedcloud.egi.eu
   cat > /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.grid.cesnet.cz.lsc <<EOF
 /DC=org/DC=terena/DC=tcs/C=CZ/ST=Hlavni mesto Praha/L=Praha 6/O=CESNET/CN=voms1.grid.cesnet.cz
