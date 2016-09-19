@@ -194,6 +194,7 @@ EOF
   fi
 else
   echo "Installating Futuregateway service control script using systemctl"
+  CURDIR=$(pwd)
   cat >futuregateway.bin << EOF
 #! /bin/sh
 ENABLEFRONTEND=1 # In production environment this flag should be placed to 0
@@ -325,9 +326,9 @@ case "\$1" in
    ;;
 esac
 EOF
-  su - -c 'cp futuregateway.bin /usr/local/bin/futuregateway && chmod +x /usr/local/bin/futuregateway'
+  su - -c "cp $CURDIR/futuregateway.bin /usr/local/bin/futuregateway && chmod +x /usr/local/bin/futuregateway"
   # systemctl service script
-  cat futuregateway.service <<EOF
+  cat >futuregateway.service <<EOF
 [Unit]
 Description=Control the futuregateway service
 
@@ -340,9 +341,9 @@ RemainAfterExit=yes
 [Install]
 WantedBy=multi-user.target
 EOF
-  su - -c 'cp futuregateway.service /etc/systemd/system/futuregateway && chmod +x /etc/systemd/system/futuregateway'
+  su - -c "cp $CURDIR/futuregateway.service /etc/systemd/system/futuregateway.service && chmod +x /etc/systemd/system/futuregateway.service"
   rm -f futuregateway.bin futuregateway.service
-  systemctl enable futuregateway.service
+  su - -c "systemctl enable futuregateway.service"
 fi
 #
 # Following configuration script can be used to setup fgAPIServer frontend as
