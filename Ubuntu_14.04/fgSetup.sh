@@ -16,6 +16,27 @@
 #     /etc/sudoers
 #     <user>            ALL = (ALL) NOPASSWD: ALL
 #
+
+#
+# Configure below the Git repository settings for each FutureGateway
+# software package: PortalSetup, fgAPIServer, APIServerDaemon
+# Each package requires: 
+#  GIT<PKGNAME>_NAME  - name of the package in the repository
+#  GIT<PKGNAME>_CLONE - name of the .git element in the clone URL
+#  GIT<PKGNAME>_TAG   - specify here a specific branch/release
+# 
+GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
+GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
+GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
+GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
+GITPORTALSETUP_TAG="v0.0.3"                            # PortalSetup tag name
+GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
+GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
+GITFGAPISERVER_TAG="v0.0.4"                            # fgAPIServer tag name
+GITFGAPISERVERDAEMON_NAME="APIServerDaemon"            # APIServerDaemon git path name
+GITFGAPISERVERDAEMON_CLONE="APIServerDaemon.git"       # APIServerDaemon clone name
+GITFGAPISERVERDAEMON_TAG="v0.0.4"                      # APIServerDaemin clone tag name  
+
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
 if [ "${1}" = "" ]; then
@@ -129,11 +150,11 @@ cat >setup_config.sh <<EOF
 #
 # Common values; FG user, FG user directory, FG file repo, FG home dir, FG environment
 #
-FGUSER=${VMUSER}                            # User owning FutureGateway files
-FGHOME=\$HOME                               # This script could be executed as root; specify FG home here
-FGREPO=\$FGHOME/FGRepo                      # Files could be cached into this repo directory
-FGLOCATION=\$FGHOME/FutureGateway           # Location of the FutureGateway installation
-FGENV=\$FGLOCATION/setenv.sh                # FutureGateway environment variables
+FGUSER=${VMUSER}                                 # User owning FutureGateway files
+FGHOME=\$HOME                                    # This script could be executed as root; specify FG home here
+FGREPO=\$FGHOME/FGRepo                           # Files could be cached into this repo directory
+FGLOCATION=\$FGHOME/FutureGateway                # Location of the FutureGateway installation
+FGENV=\$FGLOCATION/setenv.sh                     # FutureGateway environment variables
 
 #
 # setup_FGPortal.sh
@@ -146,7 +167,7 @@ LIFERAY_SDK_ON=1                                    # 0 - SDK will be not instal
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
-TIMEZONE=\$(date +%Z)                                # Set portal timezone as system timezone (portal should operate at UTC)
+TIMEZONE=\$(date +%Z)                               # Set portal timezone as system timezone (portal should operate at UTC)
 SETUPDB=1                                           # 1 - Initialize Liferay DB
 # Below MYSQL settings...                           # !!! WARNING enabling this flag
 MYSQL_HOST=localhost                                # any existing DB will be dropped
@@ -263,21 +284,21 @@ replace_line() {
 }
 EOF
 scp $SSHKOPTS -P $SSHPORT setup_config.sh $VMUSER@$VMIP:
-rm setup_config.sh
+rm -f setup_config.sh
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 [ -f FGRepo.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/FGRepo.tar.gz -O FGRepo.tar.gz
 [ -f APIServerDaemon_lib.tar.gz ] || wget http://sgw.indigo-datacloud.eu/fgsetup/APIServerDaemon_lib.tar.gz -O APIServerDaemon_lib.tar.gz
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGPortal.sh -O setup_FGPortal.sh
+wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_FGPortal.sh -O setup_FGPortal.sh
 chmod +x *.sh
 ./setup_FGPortal.sh
 "
 
 #3 Install JSAGA,GridEngine,rOCCI, fgService
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_JSAGA.sh -O setup_JSAGA.sh
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_GridEngine.sh -O setup_GridEngine.sh
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_OCCI.sh -O setup_OCCI.sh
-wget https://github.com/FutureGateway/PortalSetup/raw/master/setup_FGService.sh -O setup_FGService.sh
+wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_JSAGA.sh -O setup_JSAGA.sh
+wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_GridEngine.sh -O setup_GridEngine.sh
+wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_OCCI.sh -O setup_OCCI.sh
+wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_FGService.sh -O setup_FGService.sh
 chmod +x setup_*.*
 sudo ./setup_JSAGA.sh
 sudo ./setup_GridEngine.sh
@@ -294,18 +315,17 @@ fi
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
 source ~/.bash_profile
 cd \$FGLOCATION
-git clone https://github.com/FutureGateway/fgAPIServer.git
+git clone -b $GITFGAPISERVER_TAG $GITBASE/$GITFGAPISERVER_CLONE
 cd fgAPIServer
 $SETUPFGAPIERVER_DB < fgapiserver_db.sql
 "
 
 #5 APIServerDaemon
-APISERVERDAEMON_GIT="https://github.com/FutureGateway/APIServerDaemon.git"
 TOSCAADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-tosca.git"
 ROCCIADAPTOR_GIT="https://github.com/csgf/jsaga-adaptor-rocci.git"
 cat > setup_APIServerDaemon.sh <<EOF
 cd \$FGLOCATION
-git clone $APISERVERDAEMON_GIT
+git clone -b $GITFGAPISERVERDAEMON_TAG $GITBASE/$GITFGAPISERVERDAEMON_CLONE
 git clone $ROCCIADAPTOR_GIT
 git clone $TOSCAADAPTOR_GIT
 # Prepare lib dir
@@ -351,7 +371,7 @@ rm -f ./setup_APIServerDaemon.sh
 #6 Customize DB and default app settings
 cat > customize_DBApps.sh <<EOF
 # Fix SSH connection issue on Ubuntu with JSAGA
-sudo mkdir /etc/ssh/ssh_host_disabled
+sudo mkdir -p /etc/ssh/ssh_host_disabled
 find  /etc/ssh/ -name 'ssh_host_*' | grep -v disabled | grep -v rsa | grep -v \_dsa | xargs -I{} sudo mv {} /etc/ssh/ssh_host_disabled/
 # Use the correct application path
 SQLCMD="update application_file set path='\$FGLOCATION/fgAPIServer/apps/sayhello' where app_id=2;"
