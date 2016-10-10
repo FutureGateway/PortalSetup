@@ -89,42 +89,36 @@ else
   DBROOTPASS="\\\"''\\\""
 fi
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-export DEBIAN_FRONTEND=\"noninteractive\"
-sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password password $DBROOTPASS\"
-sudo debconf-set-selections <<< \"mysql-server mysql-server/root_password_again password $DBROOTPASS\"
-sudo apt-get -y update
+sudo yum install -y epel-release
+sudo yum clean all
+sudo yum update
 PKGS=\"wget \
-openssh-client \
+openssh-clients \
 openssh-server \
-mysql-server-5.6 \
-mysql-server-core-5.6 \
-mysql-client-5.6 \
-mysql-client-core-5.6 \
-openjdk-7-jdk \
-build-essential \
-mlocate \
-unzip \
-curl \
-ruby-dev \
-apache2 \
-libapache2-mod-wsgi \
-python-dev \
+mariadb \
+mariadb-server \
+java-1.7.0-openjdk \
+java-1.7.0-openjdk-devel \
+ruby-devel \
+httpd \
+mod_wsgi \
+python \
 python-pip \
-python-Flask \
-python-flask-login \
+python-flask \
 python-crypto \
-python-MySQLdb \
+MySQL-python \
 git \
-ldap-utils \
+openldap \
 openvpn \
 screen \
 jq\"
 for pkg in \$PKGS; do
-  sudo apt-get -y install \$pkg 
+  yum install -y \$pkg 
 done
-sudo pip install --upgrade flask-login
-sudo service ssh restart
-sudo service mysql restart
+sudo yum groupinstall -y "Development Tools"
+sudo pip install flask-login
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
 "
 
 # 3) Install FGPortal
@@ -151,7 +145,7 @@ cat >setup_config.sh <<EOF
 # Common values; FG user, FG user directory, FG file repo, FG home dir, FG environment
 #
 FGUSER=${VMUSER}                                 # User owning FutureGateway files
-FGHOME=\$HOME                                    # This script could be executed as root; specify FG home here
+FGHOME=${HOME}                                    # This script could be executed as root; specify FG home here
 FGREPO=\$FGHOME/FGRepo                           # Files could be cached into this repo directory
 FGLOCATION=\$FGHOME/FutureGateway                # Location of the FutureGateway installation
 FGENV=\$FGLOCATION/setenv.sh                     # FutureGateway environment variables
@@ -186,7 +180,7 @@ JSAGA_LOCATION=\$FGHOME/FutureGateway              # Liferay SDK will be placed 
 #
 # setup_OCCI.sh
 #
-USEFEDCLOUD=1                                      # Set to 1 for FedCloud setup script
+USEFEDCLOUD=0                                      # Set to 1 for FedCloud setup script
 
 #
 # setup_GridEngine.sh
@@ -405,4 +399,3 @@ EOF2
 sudo service ssh restart
 "
 rm -f ./customize_DBApps.sh
-

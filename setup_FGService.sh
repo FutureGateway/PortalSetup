@@ -28,9 +28,15 @@ if [ "$BREW" != "" ]; then
   exit 1
 fi
 
+if [ "$YUM" != "" ]; then
+  RHREL=$(cat /etc/redhat-release | sed 's/[^0-9.]*//g' | awk -F"." '{ print $1 }')
+  USESYSCTL=0
+  [ $((RHREL-6)) > 0 ] && USESYSCTL=1
+fi
 
-echo "Installating Futuregateway service initialization script"
-cat >/etc/init.d/futuregateway << EOF
+if [ $USESYSCTL -eq 0 ]; then
+  echo "Installating Futuregateway service control script in /etc/init.d"
+  cat >/etc/init.d/futuregateway << EOF
 #! /bin/sh
 ### BEGIN INIT INFO
 # Provides: futuregateway
@@ -172,22 +178,173 @@ case "\$1" in
    ;;
 esac
 EOF
-chmod a+x /etc/init.d/futuregateway
-if [ "$APTGET" != "" ]; then
-  update-rc.d futuregateway defaults
+  chmod a+x /etc/init.d/futuregateway
+  if [ "$APTGET" != "" ]; then
+    update-rc.d futuregateway defaults
+    #
+    # Ubuntu 14.04 bug, screen section does not start at boot
+    #
+    OSREL=$(lsb_release -r | awk '{ print $2}')
+    if [ "$OSREL" = "14.04" ]; then
+      # To workaround this, place the futuregateway service execution inside rc.local
+      replace_line "/etc/rc.local" "exit 0" "/etc/init.d/futuregateway start\nexit 0" "orig"
+    fi
+  else
+    chkconfig futuregateway on
+  fi
 else
-  chkconfig futuregateway on
-fi
+  echo "Installating Futuregateway service control script using systemctl"
+  CURDIR=$(pwd)
+  cat >futuregateway.bin << EOF
+#! /bin/sh
+ENABLEFRONTEND=1 # In production environment this flag should be placed to 0
+FRONTENDSESSIONNAME=fgAPIServer
+SCREEN=\$(which screen)
+FGUSER=futuregateway
+TOMCAT_DIR=\$(su - \$FGUSER -c "echo \\\$CATALINA_HOME")
+export JAVA_HOME=\$(su - \$FGUSER -c "echo \\\$JAVA_HOME")
 
-#
-# Ubuntu 14.04 bug, screen section does not start at boot
-#
-OSREL=$(lsb_release -r | awk '{ print $2}')
-if [ "$OSREL" = "14.04" ]; then
-  # To workaround this, place the futuregateway service execution inside rc.local
-  replace_line "/etc/rc.local" "exit 0" "/etc/init.d/futuregateway start\nexit 0" "orig"
-fi
+futuregateway_proc() {
+  JAVAPROC=\$(ps -ef | grep java | grep tomcat | grep -v grep | grep -v ps | awk '{ print \$2}')
+  echo \$JAVAPROC
+}
 
+frontend_session() {
+  SESSION=\$(su - \$FGUSER -c "screen -ls | grep \$FRONTENDSESSIONNAME")
+  echo \$SESSION | awk '{ print \$1 }' | xargs echo
+}
+
+fgAPIServer_start() {
+  if [ "\$SCREEN" = "" ]; then
+    echo "Unable to start fgAPIServer without screen command"
+    return 1
+  fi
+  FRONTENDSESSION=\$(frontend_session)
+  if [ "\$FRONTENDSESSION" != "" ]; then
+    echo "APIServer front-end screen session already exists"
+  else
+    FGPROC=\$(ps -ef | grep python | grep fgapiserver.py | head -n 1)
+    if [ "\$FGPROC" != "" ]; then
+      echo "APIServer front-end is already running"
+    else
+      su - \$FGUSER -c "screen -dmS \$FRONTENDSESSIONNAME bash"
+      FRONTENDSESSION=\$(frontend_session)
+      su - \$FGUSER -c "screen -S \$FRONTENDSESSIONNAME -X stuff \"cd \\\\\\\$FGLOCATION/fgAPIServer\\n\""
+      su - \$FGUSER -c "screen -S \$FRONTENDSESSIONNAME -X stuff \"./fgapiserver.py\\n\""
+    fi
+  fi
+}
+
+fgAPIServer_stop() {
+  if [ "\$SCREEN" = "" ]; then
+    echo "Unable to stop fgAPIServer without screen command"
+    return 1
+  fi
+  FRONTENDSESSION=\$(frontend_session)
+  if [ "\$FRONTENDSESSION" = "" ]; then
+    echo "APIServer front-end already stopped"
+  else
+    su - \$FGUSER -c "screen -X -S \$FRONTENDSESSIONNAME quit"
+  fi
+}
+
+futuregateway_start() {
+  JAVAPROC=\$(futuregateway_proc)
+  if [ "\$JAVAPROC" != "" ]; then
+    echo "FutureGateway already running"
+  else
+    su - \$FGUSER -c start_tomcat
+  fi
+  if [ \$ENABLEFRONTEND -ne 0 ]; then
+    fgAPIServer_start
+  else
+    echo "fgAPIServer front-end disabled"
+  fi
+}
+
+futuregateway_stop() {
+  JAVAPROC=\$(futuregateway_proc)
+  if [ "\$JAVAPROC" != "" ]; then
+    su - \$FGUSER -c stop_tomcat
+    sleep 10
+    JAVAPROC=\$(futuregateway_proc)
+    if [ "\$JAVAPROC" != "" ]; then
+      printf "Java process still active; killing ... "
+      while [ "\$JAVAPROC" != "" ]; do
+        kill \$JAVAPROC;
+        JAVAPROC=\$(futuregateway_proc)
+      done
+      echo "done"
+    fi
+  else
+    echo "FurureGateway already stopped"
+  fi
+  if [ \$ENABLEFRONTEND -ne 0 ]; then
+    fgAPIServer_stop
+  else
+    echo "fgAPIServer front-end disabled"
+  fi
+}
+
+futuregateway_status() {
+  if [ \$ENABLEFRONTEND -eq 0 ]; then
+    echo "fgAPIServer front-end disabled"
+  else
+    JAVAPROC=\$(futuregateway_proc)
+    if [ "\$JAVAPROC" != "" ]; then
+      echo "Futuregateway is up and running"
+    else
+      echo "Futuregateway is stopped"
+    fi
+    FRONTENDSESSION=\$(frontend_session)
+    if [ "\$FRONTENDSESSION" != "" ]; then
+      echo "APIServer front-end is up and running"
+    else
+      echo "APIServer front-end is stopped"
+    fi
+  fi
+}
+
+case "\$1" in
+ start)
+   futuregateway_start
+   ;;
+ stop)
+   futuregateway_stop
+   ;;
+ restart)
+   futuregateway_stop
+   sleep 20
+   futuregateway_start
+   ;;
+ status)
+   futuregateway_status
+   ;;
+ *)
+   echo "Usage: futuregateway {start|stop|restart|status}" >&2
+   exit 3
+   ;;
+esac
+EOF
+  su - -c "cp $CURDIR/futuregateway.bin /usr/local/bin/futuregateway && chmod +x /usr/local/bin/futuregateway"
+  # systemctl service script
+  cat >futuregateway.service <<EOF
+[Unit]
+Description=Control the futuregateway service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/usr/local/bin/futuregateway start"
+ExecStop=/bin/sh -c "/usr/local/bin/futuregateway stop"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  su - -c "cp $CURDIR/futuregateway.service /etc/systemd/system/futuregateway.service && chmod +x /etc/systemd/system/futuregateway.service"
+  rm -f futuregateway.bin futuregateway.service
+  su - -c "systemctl enable futuregateway.service"
+fi
 #
 # Following configuration script can be used to setup fgAPIServer frontend as
 # a WSGI process. This is the recommended way when use the APIServer in a
