@@ -25,17 +25,19 @@
 #  GIT<PKGNAME>_CLONE - name of the .git element in the clone URL
 #  GIT<PKGNAME>_TAG   - specify here a specific branch/release
 # 
-GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
-GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
+#GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
+GITBASE=https://github.com/FutureGateway               # GitHub base repository endpoint
+#GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
+GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
+GITPORTALSETUP_TAG="NewChanged"                            # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
-GITFGAPISERVER_TAG="v0.0.5"                            # fgAPIServer tag name
+GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
 GITFGAPISERVERDAEMON_NAME="APIServerDaemon"            # APIServerDaemon git path name
 GITFGAPISERVERDAEMON_CLONE="APIServerDaemon.git"       # APIServerDaemon clone name
-GITFGAPISERVERDAEMON_TAG="v0.0.5"                      # APIServerDaemin clone tag name  
+GITFGAPISERVERDAEMON_TAG="NewChanges"                      # APIServerDaemin clone tag name  
 
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
@@ -301,9 +303,19 @@ wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_OCCI.sh -O setup
 wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_FGService.sh -O setup_FGService.sh
 chmod +x setup_*.*
 sudo ./setup_JSAGA.sh
-sudo ./setup_GridEngine.sh
+#sudo ./setup_GridEngine.sh - Deprecated by the new maven compilable GridEngine
 sudo ./setup_OCCI.sh # Script not really mature some tuning still necessary
 sudo ./setup_FGService.sh
+"
+
+#3.1 Download and compile GridEngine
+ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
+git clone https://github.com/csgf/grid-and-cloud-engine.git -b FutureGateway 
+cd grid-and-cloud-engine
+cd grid-and-cloud-engine-threadpool
+mvn install dependency:copy-dependencies
+cd ../grid-and-cloud-engine_M
+mvn install dependency:copy-dependencies
 "
 
 #4 fgAPIServer
@@ -354,6 +366,10 @@ cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/AP
 cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/jsaga-1.1.2/lib
 # Compile APIServerDaemon
 cd \$FGLOCATION/APIServerDaemon
+# Move GridEngine libs 1st
+mkdir lib
+find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine-threadpool/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
+find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine_M/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
 ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
