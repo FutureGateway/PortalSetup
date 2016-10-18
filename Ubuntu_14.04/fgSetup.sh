@@ -310,12 +310,15 @@ sudo ./setup_FGService.sh
 
 #3.1 Download and compile GridEngine
 ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
+source ~/.bash_profile
+cd \$FGLOCATION
+JAVACVER=\$(javac -version 2>&1 | awk '{ print substr(\$2,1,3) }')
 git clone https://github.com/csgf/grid-and-cloud-engine.git -b FutureGateway 
 cd grid-and-cloud-engine
 cd grid-and-cloud-engine-threadpool
-mvn install dependency:copy-dependencies
+mvn install -Dmaven.compiler.source=\$JAVACVER -Dmaven.compiler.target=\$JAVACVER  dependency:copy-dependencies 
 cd ../grid-and-cloud-engine_M
-mvn install dependency:copy-dependencies
+mvn install -Dmaven.compiler.source=\$JAVACVER -Dmaven.compiler.target=\$JAVACVER  dependency:copy-dependencies
 "
 
 #4 fgAPIServer
@@ -367,7 +370,7 @@ cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/js
 # Compile APIServerDaemon
 cd \$FGLOCATION/APIServerDaemon
 # Move GridEngine libs 1st
-mkdir lib
+mkdir -p lib
 find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine-threadpool/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
 find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine_M/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
 ant all
