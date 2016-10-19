@@ -31,7 +31,7 @@ GITBASE=https://github.com/FutureGateway               # GitHub base repository 
 GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
+GITPORTALSETUP_TAG="NewChanges"                        # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
 GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
@@ -103,6 +103,8 @@ mysql-server-core-5.6 \
 mysql-client-5.6 \
 mysql-client-core-5.6 \
 openjdk-7-jdk \
+ant \
+maven \
 build-essential \
 mlocate \
 unzip \
@@ -121,9 +123,7 @@ ldap-utils \
 openvpn \
 screen \
 jq\"
-for pkg in \$PKGS; do
-  sudo apt-get -y install \$pkg 
-done
+sudo apt-get -y install \$(echo \$PKGS) 
 sudo pip install --upgrade flask-login
 sudo service ssh restart
 sudo service mysql restart
