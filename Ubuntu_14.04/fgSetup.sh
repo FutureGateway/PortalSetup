@@ -31,7 +31,7 @@ GITBASE=https://github.com/FutureGateway               # GitHub base repository 
 GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="NewChanged"                            # PortalSetup tag name
+GITPORTALSETUP_TAG="NewChanges"                            # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
 GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
@@ -103,6 +103,7 @@ mysql-server-core-5.6 \
 mysql-client-5.6 \
 mysql-client-core-5.6 \
 openjdk-7-jdk \
+maven \
 build-essential \
 mlocate \
 unzip \
@@ -167,7 +168,7 @@ SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
-MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
+MAVEN_ON=0                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 TIMEZONE=\$(date +%Z)                               # Set portal timezone as system timezone (portal should operate at UTC)
 SETUPDB=1                                           # 1 - Initialize Liferay DB
