@@ -24,14 +24,14 @@
 #  GIT<PKGNAME>_NAME  - name of the package in the repository
 #  GIT<PKGNAME>_CLONE - name of the .git element in the clone URL
 #  GIT<PKGNAME>_TAG   - specify here a specific branch/release
-# 
+#
 #GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
 GITBASE=https://github.com/FutureGateway               # GitHub base repository endpoint
 #GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
 GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="NewChanges"                            # PortalSetup tag name
+GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
 GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
@@ -103,7 +103,6 @@ mysql-server-core-5.6 \
 mysql-client-5.6 \
 mysql-client-core-5.6 \
 openjdk-7-jdk \
-maven \
 build-essential \
 mlocate \
 unzip \
@@ -168,6 +167,7 @@ SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
+ANT_ON=0                                            # 0 - Ant will be not installed (valid only if LIFERAY_SDK is on)
 MAVEN_ON=0                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 TIMEZONE=\$(date +%Z)                               # Set portal timezone as system timezone (portal should operate at UTC)
@@ -304,22 +304,9 @@ wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_OCCI.sh -O setup
 wget $GITBASERAW/$GITPORTALSETUP_NAME/$GITPORTALSETUP_TAG/setup_FGService.sh -O setup_FGService.sh
 chmod +x setup_*.*
 sudo ./setup_JSAGA.sh
-#sudo ./setup_GridEngine.sh - Deprecated by the new maven compilable GridEngine
+sudo ./setup_GridEngine.sh
 sudo ./setup_OCCI.sh # Script not really mature some tuning still necessary
 sudo ./setup_FGService.sh
-"
-
-#3.1 Download and compile GridEngine
-ssh -p $SSHPORT $SSHKOPTS -t $VMUSER@$VMIP "
-source ~/.bash_profile
-cd \$FGLOCATION
-JAVACVER=\$(javac -version 2>&1 | awk '{ print substr(\$2,1,3) }')
-git clone https://github.com/csgf/grid-and-cloud-engine.git -b FutureGateway 
-cd grid-and-cloud-engine
-cd grid-and-cloud-engine-threadpool
-mvn install -Dmaven.compiler.source=\$JAVACVER -Dmaven.compiler.target=\$JAVACVER  dependency:copy-dependencies 
-cd ../grid-and-cloud-engine_M
-mvn install -Dmaven.compiler.source=\$JAVACVER -Dmaven.compiler.target=\$JAVACVER  dependency:copy-dependencies
 "
 
 #4 fgAPIServer
@@ -370,10 +357,6 @@ cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/AP
 cp \$FGLOCATION/jsaga-adaptor-tosca/dist/jsaga-adaptor-tosca.jar \$FGLOCATION/jsaga-1.1.2/lib
 # Compile APIServerDaemon
 cd \$FGLOCATION/APIServerDaemon
-# Move GridEngine libs 1st
-mkdir -p lib
-find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine-threadpool/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
-find \$FGLOCATION/grid-and-cloud-engine/grid-and-cloud-engine_M/target/dependency/ -name '*.jar' | grep -v ant | xargs -I{} cp {} lib/
 ant all
 cp \$FGLOCATION/APIServerDaemon/dist/APIServerDaemon.war \$CATALINA_HOME/webapps
 cd \$FGLOCATION
