@@ -1,0 +1,6 @@
+[submodule "Ansible/repos/fgapiserver-role"]
+	path = Ansible/repos/fgapiserver-role
+	url = https://github.com/brucellino/fgapiserver-role
+[submodule "Ansible/repos/fgapi-db"]
+	path = Ansible/repos/fgapi-db
+	url = https://github.com/brucellino/fgapi-db

@@ -1,6 +1,0 @@
----
-- hosts: apiservers
-  roles:
-    - FutureGatewayAPI
-  pre-tasks:
-    setup:
