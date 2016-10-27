@@ -28,9 +28,9 @@ if [ "$BREW" != "" ]; then
   exit 1
 fi
 
+USESYSCTL=0
 if [ "$YUM" != "" ]; then
   RHREL=$(cat /etc/redhat-release | sed 's/[^0-9.]*//g' | awk -F"." '{ print $1 }')
-  USESYSCTL=0
   [ $((RHREL-6)) > 0 ] && USESYSCTL=1
 fi
 
@@ -486,7 +486,7 @@ cat >fgAPIServer.conf <<EOF
 		BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
 
 		<IfModule wsgi_module>
-			WSGIDaemonProcess fgapiserver  user=futuregateway group=futuregateway  processes=5 threads=10 home=/home/futuregateway
+			WSGIDaemonProcess fgapiserver  user=futuregateway group=futuregateway  processes=5 threads=10 home=/home/futuregateway/FutureGateway/fgAPIServer
 			WSGIProcessGroup futuregateway
 			WSGIScriptAlias /apis /home/futuregateway/FutureGateway/fgapiserver/fgapiserver.wsgi
 

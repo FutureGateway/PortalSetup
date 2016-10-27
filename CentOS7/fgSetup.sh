@@ -112,9 +112,7 @@ openldap \
 openvpn \
 screen \
 jq\"
-for pkg in \$PKGS; do
-  yum install -y \$pkg 
-done
+yum install -y \$PKGS
 sudo yum groupinstall -y "Development Tools"
 sudo pip install flask-login
 sudo systemctl enable mariadb

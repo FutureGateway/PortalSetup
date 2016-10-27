@@ -17,6 +17,7 @@ SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_LOCATION=$FGLOCATION                    # Liferay SDK will be placed here
+ANT_ON=1                                            # 0 - Ant will be not installed (valid only if LIFERAY_SDK is on)
 MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 TIMEZONE=$(date +%Z)                                # Set portal timezone as system timezone (portal should operate at UTC)
@@ -427,6 +428,10 @@ install_liferay_dependencies6() {
 
 # liferay_sdk isntallation step (apache.ant)
 install_ant() {
+  if [ $ANT_ON -eq 0 ]; then
+    echo "Skipping ant installation"
+    return 0
+  fi
   if [ -e $RUNDIR/.fgSetup ]; then
     SETUPCHK=$(cat $RUNDIR/.fgSetup | grep "apacheant")
   else

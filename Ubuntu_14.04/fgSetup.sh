@@ -24,18 +24,20 @@
 #  GIT<PKGNAME>_NAME  - name of the package in the repository
 #  GIT<PKGNAME>_CLONE - name of the .git element in the clone URL
 #  GIT<PKGNAME>_TAG   - specify here a specific branch/release
-# 
-GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
-GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
+#
+#GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
+GITBASE=https://github.com/FutureGateway               # GitHub base repository endpoint
+#GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
+GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
+GITPORTALSETUP_TAG="NewChanges"                        # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
-GITFGAPISERVER_TAG="v0.0.5"                            # fgAPIServer tag name
+GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
 GITFGAPISERVERDAEMON_NAME="APIServerDaemon"            # APIServerDaemon git path name
 GITFGAPISERVERDAEMON_CLONE="APIServerDaemon.git"       # APIServerDaemon clone name
-GITFGAPISERVERDAEMON_TAG="v0.0.5"                      # APIServerDaemin clone tag name  
+GITFGAPISERVERDAEMON_TAG="NewChanges"                      # APIServerDaemin clone tag name  
 
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
@@ -101,6 +103,8 @@ mysql-server-core-5.6 \
 mysql-client-5.6 \
 mysql-client-core-5.6 \
 openjdk-7-jdk \
+ant \
+maven \
 build-essential \
 mlocate \
 unzip \
@@ -119,9 +123,7 @@ ldap-utils \
 openvpn \
 screen \
 jq\"
-for pkg in \$PKGS; do
-  sudo apt-get -y install \$pkg 
-done
+sudo apt-get -y install \$(echo \$PKGS) 
 sudo pip install --upgrade flask-login
 sudo service ssh restart
 sudo service mysql restart
@@ -165,7 +167,8 @@ SKIP_LIFERAY=0                                      # 0 - Installs Liferay
 LIFERAY_VER=7                                       # Specify here the Liferay portal version: 6 or 7 (default)
 LIFERAY_SDK_ON=1                                    # 0 - SDK will be not installed
 LIFERAY_SDK_LOCATION=\$FGLOCATION                   # Liferay SDK will be placed here
-MAVEN_ON=1                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
+ANT_ON=0                                            # 0 - Ant will be not installed (valid only if LIFERAY_SDK is on)
+MAVEN_ON=0                                          # 0 - Maven will be not installed (valid only if LIFERAY_SDK is on)
 STARTUP_SYSTEM=1                                    # 0 - The portlal will be not initialized (unused yet)
 TIMEZONE=\$(date +%Z)                               # Set portal timezone as system timezone (portal should operate at UTC)
 SETUPDB=1                                           # 1 - Initialize Liferay DB
