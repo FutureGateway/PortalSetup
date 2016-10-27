@@ -25,19 +25,17 @@
 #  GIT<PKGNAME>_CLONE - name of the .git element in the clone URL
 #  GIT<PKGNAME>_TAG   - specify here a specific branch/release
 #
-#GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
-GITBASE=https://github.com/FutureGateway               # GitHub base repository endpoint
-#GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
-GITBASERAW=https://raw.githubusercontent.com/FutureGateway # GitHub base for raw content
+GITBASE=https://github.com/indigo-dc                   # GitHub base repository endpoint
+GITBASERAW=https://raw.githubusercontent.com/indigo-dc # GitHub base for raw content
 GITPORTALSETUP_NAME="PortalSetup"                      # PortalSetup git path name
 GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
-GITPORTALSETUP_TAG="NewChanges"                        # PortalSetup tag name
+GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
-GITFGAPISERVER_TAG="NewChanges"                            # fgAPIServer tag name
+GITFGAPISERVER_TAG="v0.0.6"                            # fgAPIServer tag name
 GITFGAPISERVERDAEMON_NAME="APIServerDaemon"            # APIServerDaemon git path name
 GITFGAPISERVERDAEMON_CLONE="APIServerDaemon.git"       # APIServerDaemon clone name
-GITFGAPISERVERDAEMON_TAG="NewChanges"                      # APIServerDaemin clone tag name  
+GITFGAPISERVERDAEMON_TAG="v0.0.6"                      # APIServerDaemin clone tag name  
 
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
