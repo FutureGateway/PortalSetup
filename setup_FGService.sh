@@ -486,7 +486,7 @@ cat >fgAPIServer.conf <<EOF
 		BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
 
 		<IfModule wsgi_module>
-			WSGIDaemonProcess fgapiserver  user=futuregateway group=futuregateway  processes=5 threads=10 home=/home/futuregateway
+			WSGIDaemonProcess fgapiserver  user=futuregateway group=futuregateway  processes=5 threads=10 home=/home/futuregateway/FutureGateway/fgAPIServer
 			WSGIProcessGroup futuregateway
 			WSGIScriptAlias /apis /home/futuregateway/FutureGateway/fgapiserver/fgapiserver.wsgi
 
