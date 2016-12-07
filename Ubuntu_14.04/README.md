@@ -15,7 +15,7 @@ In order to install the FutureGateway, just execute as root user:
 # adduser --disabled-password --gecos "" futuregateway 
 # mkdir -p /home/futuregateway/.ssh
 # chown futuregateway:futuregateway /home/futuregateway/.ssh
-# wget https://github.com/FutureGateway/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
+# wget https://github.com/indigo-dc/PortalSetup/PortalSetup/raw/master/Ubuntu_14.04/fgSetup.sh
 # chmod +x fgSetup.sh
 # cat /dev/zero | ssh-keygen -q -N ""
 # cat /root/.ssh/id_rsa.pub >> /home/futuregateway/.ssh/authorized_keys
@@ -23,6 +23,10 @@ In order to install the FutureGateway, just execute as root user:
 # echo "ALL  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # ./fgSetup.sh futuregateway futuregateway <your ssh port> $(cat /root/.ssh/id_rsa.pub)
 ```
+
+The script above is just a suggestion; in particular:
+1. The way to extract the IP address could not work if targed host has more than one interface and/or ssh reachable network device is not called eth0
+2. The extraction of the fgSetup.sh script with wget command refers to the master branch; before to use it, verify if you need to estract a particular tagged version instead
 Before to execute `fgSetup.sh` it is recommended to open it and verify inside its content, the default settings specifyed while generating file setup_config.sh. Executing the last statement above, the installation procedure should start and it requires a while to complete.
 
 # Suggested procedures
