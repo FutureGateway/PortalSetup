@@ -32,10 +32,10 @@ GITPORTALSETUP_CLONE="PortalSetup.git"                 # PortalSetup clone name
 GITPORTALSETUP_TAG="master"                            # PortalSetup tag name
 GITFGAPISERVER_NAME="fgAPIServer"                      # fgAPIServer git path name
 GITFGAPISERVER_CLONE="fgAPIServer.git"                 # fgAPIServer clone name
-GITFGAPISERVER_TAG="v0.0.5"                            # fgAPIServer tag name
+GITFGAPISERVER_TAG="v0.0.6-a"                          # fgAPIServer tag name
 GITFGAPISERVERDAEMON_NAME="APIServerDaemon"            # APIServerDaemon git path name
 GITFGAPISERVERDAEMON_CLONE="APIServerDaemon.git"       # APIServerDaemon clone name
-GITFGAPISERVERDAEMON_TAG="v0.0.5"                      # APIServerDaemin clone tag name  
+GITFGAPISERVERDAEMON_TAG="v0.0.6-a"                    # APIServerDaemin clone tag name  
 
 OPTPASS=1
 SCRIPTNAME=$(basename $0)
@@ -112,9 +112,7 @@ openldap \
 openvpn \
 screen \
 jq\"
-for pkg in \$PKGS; do
-  yum install -y \$pkg 
-done
+yum install -y \$PKGS
 sudo yum groupinstall -y "Development Tools"
 sudo pip install flask-login
 sudo systemctl enable mariadb
